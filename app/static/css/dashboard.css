@@ -1,0 +1,143 @@
+/* Reset defaults */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Body and layout */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f5fa;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #0a4aad;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.welcome {
+    font-size: 18px;
+    margin: 10px 0 20px 0;
+    text-align: center;
+}
+
+.sidebar button {
+    width: 90%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    color: #0a4aad;
+    font-weight: bold;
+}
+
+.sidebar a {
+    text-decoration: none;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.contact-box {
+    background-color: #6674ff;
+    margin-top: auto;
+    padding: 10px;
+    font-size: 13px;
+    text-align: center;
+    width: 90%;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background-color: #f3f5fa;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Content layout */
+.content-area {
+    display: flex;
+    gap: 20px;
+}
+
+/* Overall Rating */
+.rating-box {
+    flex: 2;
+    border: 2px solid purple;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+.rating-bar {
+    background-color: #004aad;
+    height: 200px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Recent Review */
+.recent-review {
+    flex: 1;
+    border: 2px solid black;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.review-bar {
+    background-color: #004aad;
+    height: 20px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.actions .view {
+    color: #00cc99;
+}
+
+.actions .update {
+    color: #ffd966;
+}
+
+.actions .delete {
+    color: #ff4d4d;
+}
