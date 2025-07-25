@@ -10,16 +10,31 @@
         <h2>Register as a Student</h2>
         <form method="POST" action="/register">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="student_name" required>
+            <input type="text" name="name" required>
 
-            <label for="roll">Roll Number:</label>
-            <input type="text" id="roll" name="student_roll" required>
+            <label for="roll_number">Roll Number:</label>
+            <input type="text" name="roll_number" required>
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="student_password" required>
+            <input type="password" name="password" required>
+
+            <label for="class_name">Class</label>
+            <select name="class_name" required>
+                <option value="">Select Class</option>
+                <option value="FYIT">FYIT</option>
+                <option value="SYIT">SYIT</option>
+                <option value="TYIT">TYIT</option>
+            </select>
+
+            <label for="admission_year">Admission Year:</label>
+            <input type="number" name="admission_year" required min="2023" max="2030">
+
+
 
             <button type="submit">Register</button>
         </form>
+
+
         <div class="back-link">
             <a href="/login-form">Already registered? Login</a>
         </div>

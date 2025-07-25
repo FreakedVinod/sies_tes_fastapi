@@ -37,13 +37,18 @@ label {
     color: #333;
 }
 
+/* ✨ Updated to include input[type="number"] */
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+input[type="number"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 
 button {
     margin-top: 20px;
@@ -73,6 +78,39 @@ button:hover {
 }
 
 .back-link :hover {
-    color:black;
+    color: black;
     transition: color 0.2s linear;
+}
+
+input:focus {
+    border-color: #0047AB;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 71, 171, 0.3);
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;   /* Firefox */
+    appearance: textfield;        /* Chrome & others */
+    width: 100%;                  /* Ensure consistent width */
+}
+
+select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:focus {
+    border-color: #0047AB;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 71, 171, 0.3);
 }
