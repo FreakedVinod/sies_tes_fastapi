@@ -7,9 +7,10 @@
 </head>
 <body>
     <div class="container">
+        <h1>SIES-TES</h1>
         <h2>Register as a Student</h2>
         <form method="POST" action="/register">
-            <label for="name">Name:</label>
+            <label for="name">Full Name:</label>
             <input type="text" name="name" required>
 
             <label for="roll_number">Roll Number:</label>
@@ -18,21 +19,68 @@
             <label for="password">Password:</label>
             <input type="password" name="password" required>
 
-            <label for="class_name">Class</label>
-            <select name="class_name" required>
-                <option value="">Select Class</option>
-                <option value="FYIT">FYIT</option>
-                <option value="SYIT">SYIT</option>
-                <option value="TYIT">TYIT</option>
+            <label for="stream">Stream:</label>
+            <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
+                <option value="">-- Select Stream --</option>
+                <option value="1">Arts</option>
+                <option value="2">Science</option>
+                <option value="3">Commerce</option>
             </select>
 
-            <label for="admission_year">Admission Year:</label>
-            <input type="number" name="admission_year" required min="2023" max="2030">
+            <label for="course_id">Course:</label>
+            <select id="course" name="course_id" required>
+                <option value="">-- Select Course --</option>
+            </select>
 
+            <label for="class_id">Class</label>
+            <select id="class" name="class_id" required>
+                <option value="">-- Select Class --</option>
+            </select>
 
+            <label for="admission year">Admission Year</label>
+            <input type="number" name="admission_year" min="2023" max="2030" required>
 
             <button type="submit">Register</button>
         </form>
+
+        <script>
+        function loadCourses(streamId) {
+        fetch(`/get-courses/${streamId}`)
+            .then(response => response.json())
+            .then(data => {
+                const courseSelect = document.getElementById('course');
+                courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+                data.courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.id;
+                    option.textContent = course.name;
+                    courseSelect.appendChild(option);
+                });
+                // Reset classes when new stream selected
+                document.getElementById('class').innerHTML = '<option value="">-- Select Class --</option>';
+            });
+        }
+
+        document.getElementById('course').addEventListener('change', function () {
+        const courseId = this.value;
+        if (!courseId) return;
+
+        fetch(`/get-classes/${courseId}`)
+            .then(response => response.json())
+            .then(data => {
+                const classSelect = document.getElementById('class');
+                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+                data.classes.forEach(cls => {
+                    const option = document.createElement('option');
+                    option.value = cls.id;
+                    option.textContent = cls.name;
+                    classSelect.appendChild(option);
+                });
+            });
+        });
+    </script>
+
+
 
 
         <div class="back-link">

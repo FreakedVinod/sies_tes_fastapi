@@ -7,6 +7,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
+from fastapi import Depends
+
+from app.routes import admin
+
+import aiomysql
 
 app = FastAPI()
 
@@ -17,6 +23,17 @@ templates = Jinja2Templates(directory="app/templates")
 def register_form(request: Request):
     return templates.TemplateResponse("studentRegistration.html", {"request": request})
 
+@app.get("/get-courses/{stream_id}")
+async def get_courses_by_stream(stream_id: int):
+    query = "SELECT course_id AS id, course_name AS name FROM courses WHERE stream_id = :stream_id"
+    result = await database.fetch_all(query=query, values={"stream_id": stream_id})
+    return JSONResponse(content={"courses": [dict(row) for row in result]})
+
+@app.get("/get-classes/{course_id}")
+async def get_classes(course_id: int):
+    query = "SELECT class_id AS id, class_name AS name FROM classes WHERE course_id = :course_id"
+    rows = await database.fetch_all(query, {"course_id": course_id})
+    return JSONResponse(content={"classes": [dict(row) for row in rows]})
 
 @app.get("/login-form")
 def login_form(request: Request):
@@ -38,6 +55,7 @@ async def shutdown():
     await database.disconnect()
 
 app.include_router(students.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def read_root():

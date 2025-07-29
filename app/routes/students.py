@@ -14,43 +14,37 @@ router = APIRouter()
 
 # Register Student
 
+from fastapi import APIRouter, Form, Request
+from fastapi.responses import RedirectResponse
+import bcrypt
+
 @router.post("/register")
 async def register_student(
     name: str = Form(...),
     roll_number: str = Form(...),
     password: str = Form(...),
     admission_year: int = Form(...),
-    class_name: str = Form(...)
+    class_id: int = Form(...),
+    course_id: int = Form(...)
 ):
-    # Find class_id from class_name
-    query = "SELECT class_id FROM classes WHERE class_name = :class_name"
-    result = await database.fetch_one(query=query, values={"class_name": class_name})
-
-    if not result:
-        return {"error": "Class not found."}
-
-    class_id = result["class_id"]
-
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     # Insert student
     insert_query = """
-        INSERT INTO students (name, roll_no, password, admission_year, class_id)
-        VALUES (:name, :roll_no, :password, :admission_year, :class_id)
+        INSERT INTO students (name, roll_no, password, admission_year, class_id, course_id)
+        VALUES (:name, :roll_no, :password, :admission_year, :class_id, :course_id)
     """
     await database.execute(query=insert_query, values={
         "name": name,
         "roll_no": roll_number,
         "password": hashed_password,
         "admission_year": admission_year,
-        "class_id": class_id
+        "class_id": class_id,
+        "course_id": course_id
     })
 
     return RedirectResponse(url="/login-form", status_code=302)
-
-
-
 
 # Login Student (with cookie)
 
