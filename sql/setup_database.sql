@@ -27,11 +27,22 @@ CREATE TABLE IF NOT EXISTS students (
     FOREIGN KEY (class_id) REFERENCES classes(class_id)
 );
 
--- Optional: Insert some mock data
-INSERT INTO courses (course_name) VALUES ('BscIT');
 
-INSERT INTO classes (class_name, course_id)
-VALUES 
-    ('FYIT', 1),
-    ('SYIT', 1),
-    ('TYIT', 1);
+-- Students Eligibility 
+CREATE TABLE eligibility (
+    student_id INT PRIMARY KEY,
+    is_eligible BOOLEAN NOT NULL DEFAULT 0,
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+
+-- Optional: Insert some mock data
+-- INSERT INTO courses (course_name) VALUES ('BscIT');
+
+-- INSERT INTO classes (class_name, course_id)
+-- VALUES 
+--     ('FYIT', 56),
+--     ('SYIT', 57),
+--     ('TYIT', 58);
+
+-- INSERT INTO students (name, roll_no, password, admission_year, class_id) VALUES ('jane', 'r2', 'this', 2023, 52);
