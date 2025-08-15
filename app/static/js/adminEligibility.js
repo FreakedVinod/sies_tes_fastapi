@@ -1,30 +1,25 @@
-async function fetchStudents() {
-            const response = await fetch('/admin/students');
-            const data = await response.json();
-            const tableBody = document.getElementById('student-table');
+document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("eligibility")) {
+        let newValue = e.target.checked ? 1 : 0;
+        let studentId = e.target.dataset.studentId; // assuming you store it in data attribute
 
-            data.students.forEach(student => {
-                const row = document.createElement('tr');
+        // Send to backend
+        fetch("/update-eligibility", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                student_id: studentId,
+                is_eligible: newValue
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Server response:", data);
+        })
+        .catch(err => console.error("Error updating eligibility:", err));
+    }
+});
 
-                row.innerHTML = `
-                    <td>${student.roll_no}</td>
-                    <td>${student.name}</td>
-                    <td>${student.class_id}</td>
-                    <td>
-                        <input type="checkbox" class="toggle-btn" ${student.is_eligible ? 'checked' : ''} 
-                            onchange="updateEligibility(${student.student_id}, this.checked)">
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
 
-        async function updateEligibility(studentId, isEligible) {
-            await fetch('/admin/update-eligibility', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `student_id=${studentId}&is_eligible=${isEligible}`
-            });
-        }
-
-        fetchStudents();
