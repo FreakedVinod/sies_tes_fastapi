@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Students</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 90%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #2f3640;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .eligible {
+            color: green;
+            font-weight: bold;
+        }
+        .not-eligible {
+            color: red;
+            font-weight: bold;
+        }
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .make-eligible {
+            background: green;
+            color: white;
+        }
+        .make-not-eligible {
+            background: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Students & Eligibility</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Roll No</th>
+                <th>Class ID</th>
+                <th>Eligibility</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr id="row-{{ student.student_id }}">
+                <td>{{ student.student_id }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.roll_no }}</td>
+                <td>{{ student.class_id }}</td>
+                <td id="status-{{ student.student_id }}"
+                    class="{{ 'eligible' if student.is_eligible else 'not-eligible' }}">
+                    {{ "Eligible" if student.is_eligible else "Not Eligible" }}
+                </td>
+                <td>
+                    {% if student.is_eligible %}
+                        <button class="make-not-eligible" onclick="updateEligibility('{{ student.student_id }}', false)">Make Not Eligible</button>
+                    {% else %}
+                        <button class="make-eligible" onclick="updateEligibility('{{ student.student_id }}', true)">Make Eligible</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        async function updateEligibility(studentId, newStatus) {
+            const formData = new FormData();
+            formData.append("student_id", studentId);
+            formData.append("is_eligible", newStatus);
+
+            const response = await fetch("/admin/update-eligibility", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                // Update UI immediately
+                const statusCell = document.getElementById("status-" + studentId);
+                const row = document.getElementById("row-" + studentId);
+
+                if (newStatus) {
+                    statusCell.textContent = "Eligible";
+                    statusCell.className = "eligible";
+                    row.querySelector("td:last-child").innerHTML =
+                        `<button class="make-not-eligible" onclick="updateEligibility(${studentId}, false)">Make Not Eligible</button>`;
+                } else {
+                    statusCell.textContent = "Not Eligible";
+                    statusCell.className = "not-eligible";
+                    row.querySelector("td:last-child").innerHTML =
+                        `<button class="make-eligible" onclick="updateEligibility(${studentId}, true)">Make Eligible</button>`;
+                }
+            } else {
+                alert("Failed to update eligibility.");
+            }
+        }
+    </script>
+</body>
+</html>
