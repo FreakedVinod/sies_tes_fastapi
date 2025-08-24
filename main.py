@@ -19,9 +19,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
-@app.get("/register-form")
-def register_form(request: Request):
+@app.get("/student/register-form")
+def student_register_form(request: Request):
     return templates.TemplateResponse("studentRegistration.html", {"request": request})
+
+@app.get("/admin/register-form")
+def admin_register_form(request: Request):
+    return templates.TemplateResponse("adminRegistration.html", {"request": request})
 
 @app.get("/get-courses/{stream_id}")
 async def get_courses_by_stream(stream_id: int):
@@ -35,9 +39,13 @@ async def get_classes(course_id: int):
     rows = await database.fetch_all(query, {"course_id": course_id})
     return JSONResponse(content={"classes": [dict(row) for row in rows]})
 
-@app.get("/login-form")
-def login_form(request: Request):
+@app.get("/student/login-form")
+def student_login_form(request: Request):
     return templates.TemplateResponse("studentLogin.html", {"request": request})
+
+@app.get("/admin/login-form")
+def admin_login_form(request: Request):
+    return templates.TemplateResponse("adminLogin.html", {"request": request})
 
 
 @app.get("/logout")
