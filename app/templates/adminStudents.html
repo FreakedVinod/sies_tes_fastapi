@@ -1,128 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - Students</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            margin: 0;
-            padding: 20px;
-        }
-        h2 {
-            text-align: center;
-        }
-        table {
-            width: 90%;
-            margin: auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background: #2f3640;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-        .eligible {
-            color: green;
-            font-weight: bold;
-        }
-        .not-eligible {
-            color: red;
-            font-weight: bold;
-        }
-        button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .make-eligible {
-            background: green;
-            color: white;
-        }
-        .make-not-eligible {
-            background: red;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Admin - Students</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/adminStudents.css') }}">
 </head>
 <body>
-    <h2>Students & Eligibility</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Student ID</th>
-                <th>Name</th>
-                <th>Roll No</th>
-                <th>Class ID</th>
-                <th>Eligibility</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in students %}
-            <tr id="row-{{ student.student_id }}">
-                <td>{{ student.student_id }}</td>
-                <td>{{ student.name }}</td>
-                <td>{{ student.roll_no }}</td>
-                <td>{{ student.class_id }}</td>
-                <td id="status-{{ student.student_id }}"
-                    class="{{ 'eligible' if student.is_eligible else 'not-eligible' }}">
-                    {{ "Eligible" if student.is_eligible else "Not Eligible" }}
-                </td>
-                <td>
-                    {% if student.is_eligible %}
-                        <button class="make-not-eligible" onclick="updateEligibility('{{ student.student_id }}', false)">Make Not Eligible</button>
-                    {% else %}
-                        <button class="make-eligible" onclick="updateEligibility('{{ student.student_id }}', true)">Make Eligible</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <h2>Students & Eligibility</h2>
 
-    <script>
-        async function updateEligibility(studentId, newStatus) {
-            const formData = new FormData();
-            formData.append("student_id", studentId);
-            formData.append("is_eligible", newStatus);
+  <button class="add-btn" onclick="openModal('addModal')">+ Add Student</button>
 
-            const response = await fetch("/admin/update-eligibility", {
-                method: "POST",
-                body: formData
-            });
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Roll No</th><th>Class</th>
+        <th>Admission Year</th><th>Eligibility</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr id="row-{{ student.student_id }}">
+        <td>{{ student.student_id }}</td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.roll_no }}</td>
+        <td>{{ student.class_id }}</td>
+        <td>{{ student.admission_year }}</td>
+        <td id="status-{{ student.student_id }}"
+            class="{{ 'eligible' if student.is_eligible else 'not-eligible' }}">
+          {{ "Eligible" if student.is_eligible else "Not Eligible" }}
+        </td>
+        <td>
+          {% if student.is_eligible %}
+            <button class="make-not-eligible" onclick="updateEligibility('{{ student.student_id }}', false)">Make Not Eligible</button>
+          {% else %}
+            <button class="make-eligible" onclick="updateEligibility('{{ student.student_id }}', true)">Make Eligible</button>
+          {% endif %}
+          <button class="edit-btn" onclick="openUpdateModal('{{ student.student_id }}','{{ student.name }}','{{ student.roll_no }}','{{ student.class_id }}','{{ student.admission_year }}')">Edit</button>
+          <button class="delete-btn" onclick="deleteStudent('{{ student.student_id }}')">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-            if (response.ok) {
-                // Update UI immediately
-                const statusCell = document.getElementById("status-" + studentId);
-                const row = document.getElementById("row-" + studentId);
+  <!-- Add Modal -->
+  <div class="modal" id="addModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('addModal')">&times;</span>
+      <h3>Add Student</h3>
+      <form id="addForm">
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="roll_no" placeholder="Roll No" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <select name="class_id" required>
+          <option value="">Select Class</option>
+          {% for c in classes %}
+          <option value="{{ c.class_id }}">{{ c.class_name }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="admission_year" placeholder="Admission Year" required>
+        <button type="submit">Add</button>
+      </form>
+    </div>
+  </div>
 
-                if (newStatus) {
-                    statusCell.textContent = "Eligible";
-                    statusCell.className = "eligible";
-                    row.querySelector("td:last-child").innerHTML =
-                        `<button class="make-not-eligible" onclick="updateEligibility(${studentId}, false)">Make Not Eligible</button>`;
-                } else {
-                    statusCell.textContent = "Not Eligible";
-                    statusCell.className = "not-eligible";
-                    row.querySelector("td:last-child").innerHTML =
-                        `<button class="make-eligible" onclick="updateEligibility(${studentId}, true)">Make Eligible</button>`;
-                }
-            } else {
-                alert("Failed to update eligibility.");
-            }
-        }
-    </script>
+  <!-- Update Modal -->
+  <div class="modal" id="updateModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('updateModal')">&times;</span>
+      <h3>Update Student</h3>
+      <form id="updateForm">
+        <input type="hidden" name="student_id" id="update_student_id">
+        <input type="text" name="name" id="update_name" required>
+        <input type="text" name="roll_no" id="update_roll_no" required>
+        <input type="password" name="password" placeholder="(Leave blank to keep current)">
+        <select name="class_id" id="update_class_id" required>
+          {% for c in classes %}
+          <option value="{{ c.class_id }}">{{ c.class_name }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="admission_year" id="update_year" required>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', path='js/adminStudents.js') }}"></script>
 </body>
 </html>

@@ -44,7 +44,7 @@ async def register_student(
         "course_id": course_id
     })
 
-    return RedirectResponse(url="/login-form", status_code=302)
+    return RedirectResponse(url="student/login-form", status_code=302)
 
 # Login Student (with cookie)
 
