@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi import Depends
 
 from app.routes import admin
@@ -65,9 +66,9 @@ async def shutdown():
 app.include_router(students.router)
 app.include_router(admin.router)
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to SIES-TES FastAPI!"}
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/hello")
 def say_hello():
