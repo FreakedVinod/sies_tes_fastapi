@@ -49,7 +49,7 @@ async def login_student(request: Request, roll_number: str = Form(...), password
     
     if student and bcrypt.checkpw(password.encode('utf-8'), student["password"].encode('utf-8')):
         request.session["student_id"] = student["student_id"]
-        return RedirectResponse(url="/dashboard", status_code=302)
+        return RedirectResponse(url="/studentDashboard", status_code=302)
     
     return templates.TemplateResponse("studentLogin.html", {
         "request": request,
@@ -60,7 +60,7 @@ async def login_student(request: Request, roll_number: str = Form(...), password
 # -------------------------
 # Student Dashboard (Class-based subjects)
 # -------------------------
-@router.get("/dashboard", response_class=HTMLResponse)
+@router.get("/studentDashboard", response_class=HTMLResponse)
 async def show_dashboard(request: Request):
     student_id = request.session.get("student_id")
     if not student_id:
@@ -92,7 +92,7 @@ async def show_dashboard(request: Request):
         "class_id": class_id
     })
 
-    return templates.TemplateResponse("dashboard.html", {
+    return templates.TemplateResponse("studentDashboard.html", {
         "request": request,
         "student": student,
         "subjects": modules

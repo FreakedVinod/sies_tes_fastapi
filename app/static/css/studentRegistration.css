@@ -22,11 +22,11 @@ body {
 }
 
 h1 {
-    color:#003366;
+    color:#362483;
 }
 
 h2 {
-    color: #003366;
+    color: #362483;
     margin-bottom: 25px;
     text-align: center;
 }
@@ -43,7 +43,7 @@ label {
     color: #333;
 }
 
-/* ✨ Updated to include input[type="number"] */
+/* Updated to include input[type="number"] */
 input[type="text"],
 input[type="password"],
 input[type="number"] {
@@ -59,7 +59,7 @@ input[type="number"] {
 button {
     margin-top: 20px;
     padding: 12px;
-    background-color: #0047AB;
+    background-color: #362483; /**/
     color: white;
     font-weight: bold;
     border: none;
@@ -70,7 +70,7 @@ button {
 }
 
 button:hover {
-    background-color: #003080;
+    background-color: #303eab;
 }
 
 .back-link {
@@ -79,7 +79,7 @@ button:hover {
 
 .back-link a {
     text-decoration: none;
-    color: #0047AB;
+    color: #000000;
     font-weight: bold;
 }
 
@@ -89,7 +89,7 @@ button:hover {
 }
 
 input:focus {
-    border-color: #0047AB;
+    border-color: #000000;
     outline: none;
     box-shadow: 0 0 5px rgba(0, 71, 171, 0.3);
 }
@@ -116,7 +116,7 @@ select {
 }
 
 select:focus {
-    border-color: #0047AB;
+    border-color: #adaaaa;
     outline: none;
     box-shadow: 0 0 5px rgba(0, 71, 171, 0.3);
 }

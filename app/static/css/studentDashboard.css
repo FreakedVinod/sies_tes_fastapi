@@ -1,10 +1,10 @@
 :root {
-    --primary-color: #6a5acd;
-    --secondary-color: #3b3a62;
+    --primary-color: #7d6fd8;
+    --secondary-color: #362483;
     --white-color: #fff;
     --text-color: #fff; /* Sidebar text */
     --content-text-color: #111; /* Main content text */
-    --logout-color: #e57373;
+    --logout-color: #de5f5f;
     --star-color: #fbbf24; /* for module rating stars */
     --table-header-bg: #4b497d;
     --table-row-hover: #f3f4f6;
@@ -78,7 +78,7 @@ body {
     text-decoration: none;
     border: none;
     outline: none;
-    background-color: #4b497d; /* default button color */
+    background-color: #4e48dc; /* default button color */
     color: var(--white-color);
     transition: background-color 0.3s ease;
 }
@@ -95,7 +95,7 @@ body {
 }
 
 .sidebar .logout-btn:hover {
-    background-color: #d32f2f;
+    background-color: #fa7f7f;
 }
 
 .contact-box {

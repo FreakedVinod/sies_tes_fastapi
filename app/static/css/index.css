@@ -1,49 +1,75 @@
+/* Full-page background */
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #8e2de2, #4a00e0, #00c6ff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
-.container {
-  text-align: center;
-  color: white;
+/* Cards container */
+.cards-container {
+    display: flex;
+    flex-direction: column; /* stack title + cards vertically */
+    align-items: center;
+    gap: 40px;
 }
 
-h1 {
-  font-size: 2.5em;
-  margin-bottom: 40px;
+/* Subtle page title */
+.page-title {
+    font-size: 2rem;
+    color: #6a5acd;       /* primary color */
+    margin: 0;
+    font-weight: 700;
+    text-align: center;
+    position: relative;
 }
 
-.options {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
+/* Optional underline accent */
+.page-title::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background-color: #fbbf24; /* dashboard star color */
+    margin: 8px auto 0 auto;
+    border-radius: 2px;
 }
 
+/* Individual card */
 .card {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  text-decoration: none;
-  color: black;
-  box-shadow: 0px 6px 12px rgba(0,0,0,0.2);
-  width: 170px;
-  transition: transform 0.3s ease;
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    width: 220px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 }
 
 .card:hover {
-  transform: scale(1.1);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
 
+/* Card text */
+.card p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Card images */
 .card img {
-  width: 150px;
-  margin-bottom: 10px;
-}
-
-p {
-  font-size:35px;
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    margin-bottom: 15px;
 }
