@@ -9,25 +9,25 @@ templates = Jinja2Templates(directory="app/templates")
 # -------------------------------
 # Show Students Page (with classes + eligibility)
 # -------------------------------
-@router.get("/admin/students", response_class=HTMLResponse)
-async def admin_students_page(request: Request):
-    students_query = """
-        SELECT s.student_id, s.name, s.roll_no, s.class_id, s.admission_year,
-               COALESCE(e.is_eligible, 0) AS is_eligible
-        FROM students s
-        LEFT JOIN eligibility e ON s.student_id = e.student_id
-        ORDER BY s.class_id
-    """
-    students = await database.fetch_all(students_query)
-
-    classes_query = "SELECT class_id, class_name FROM classes ORDER BY class_id"
-    classes = await database.fetch_all(classes_query)
-
-    return templates.TemplateResponse("adminStudents.html", {
-        "request": request,
-        "students": students,
-        "classes": classes
-    })
+# @router.get("/admin/students", response_class=HTMLResponse)
+# async def admin_students_page(request: Request):
+#    students_query = """
+#        SELECT s.student_id, s.name, s.roll_no, s.class_id, s.admission_year,
+#               COALESCE(e.is_eligible, 0) AS is_eligible
+#        FROM students s
+#        LEFT JOIN eligibility e ON s.student_id = e.student_id
+#        ORDER BY s.class_id
+#    """
+#    students = await database.fetch_all(students_query)
+#
+#    classes_query = "SELECT class_id, class_name FROM classes ORDER BY class_id"
+#    classes = await database.fetch_all(classes_query)
+#
+#   return templates.TemplateResponse("adminStudents.html", {
+#        "request": request,
+#        "students": students,
+#        "classes": classes
+#    })
 
 
 # -------------------------------
@@ -131,3 +131,20 @@ async def delete_student(student_id: str):
     await database.execute("DELETE FROM eligibility WHERE student_id = :student_id", {"student_id": student_id})
     await database.execute("DELETE FROM students WHERE student_id = :student_id", {"student_id": student_id})
     return JSONResponse(content={"message": "Student deleted"})
+
+# Fetch students JSON (for dashboard table)
+@router.get("/admin/students-data")
+async def get_students_data():
+    query = """
+        SELECT s.student_id, s.name, s.roll_no, s.class_id, s.admission_year,
+               COALESCE(e.is_eligible, 0) AS is_eligible
+        FROM students s
+        LEFT JOIN eligibility e ON s.student_id = e.student_id
+        ORDER BY s.class_id
+    """
+    rows = await database.fetch_all(query)
+    return [dict(row._mapping) for row in rows]
+
+@router.get("/admin/students", response_class=HTMLResponse)
+async def admin_students_page(request: Request):
+    return templates.TemplateResponse("adminStudents.html", {"request": request})

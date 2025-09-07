@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Feedback</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/studentFeedback.css') }}">
+</head>
+<body>
+<div class="container">
+    <h2>Feedback Form</h2>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form action="/submit-feedback" method="post" onsubmit="handleSubmit(event)">
+        <!-- Hidden values -->
+        <input type="hidden" name="teacher_subject_id" value="{{ teacher_subject_id }}">
+
+        <!-- Dynamic Questions -->
+        {% for q in questions %}
+            <div class="question">
+                <label>{{ loop.index }}. {{ q.question_text }}</label>
+                <select name="responses[{{ q.question_id }}]" required>
+                    <option value="">-- Select Rating --</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+        {% endfor %}
+
+        <button type="submit">Submit Feedback</button>
+    </form>
+</div>
+<script src="{{ url_for('static', path='js/studentFeedback.js') }}"></script>
+</body>
+</html>

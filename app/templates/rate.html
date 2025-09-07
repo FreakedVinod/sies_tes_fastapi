@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Subject - SIES-TES</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/rate.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
+
+<div class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">
+        Rate: {{ subject.subject_name }} ({{ subject.teacher_name }})
+    </h2>
+
+    <form action="/submit-feedback" method="post">
+        <input type="hidden" name="teacher_subject_id" value="{{ subject.teacher_subject_id }}">
+
+        {% for question in questions %}
+        <div class="mb-6">
+            <p class="font-medium mb-2">{{ question.question_id }}. {{ question.question_text }}</p>
+            <div class="star-rating flex flex-row-reverse justify-start">
+                {% for i in range(5, 0, -1) %}
+                    <input type="radio" name="responses[{{ question.question_id }}]" id="q{{ question.question_id }}-star{{ i }}" value="{{ i }}">
+                    <label for="q{{ question.question_id }}-star{{ i }}">★</label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-left">
+            <button type="submit" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                Submit Feedback
+            </button>
+        </div>
+    </form>
+
+    <div class="text-left mt-4">
+        <a href="/module-rating" class="text-indigo-600 hover:underline">
+            ← Back to Module Rating
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

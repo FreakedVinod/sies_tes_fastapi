@@ -1,90 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin - Students</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='css/adminStudents.css') }}">
+    <meta charset="UTF-8">
+    <title>Admin - Manage Students</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/adminStudents.css') }}">
 </head>
 <body>
-  <h2>Students & Eligibility</h2>
+    <h2>Students Management</h2>
 
-  <button class="add-btn" onclick="openModal('addModal')">+ Add Student</button>
+    <button onclick="openAddModal()">Add Student</button>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>Name</th><th>Roll No</th><th>Class</th>
-        <th>Admission Year</th><th>Eligibility</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for student in students %}
-      <tr id="row-{{ student.student_id }}">
-        <td>{{ student.student_id }}</td>
-        <td>{{ student.name }}</td>
-        <td>{{ student.roll_no }}</td>
-        <td>{{ student.class_id }}</td>
-        <td>{{ student.admission_year }}</td>
-        <td id="status-{{ student.student_id }}"
-            class="{{ 'eligible' if student.is_eligible else 'not-eligible' }}">
-          {{ "Eligible" if student.is_eligible else "Not Eligible" }}
-        </td>
-        <td>
-          {% if student.is_eligible %}
-            <button class="make-not-eligible" onclick="updateEligibility('{{ student.student_id }}', false)">Make Not Eligible</button>
-          {% else %}
-            <button class="make-eligible" onclick="updateEligibility('{{ student.student_id }}', true)">Make Eligible</button>
-          {% endif %}
-          <button class="edit-btn" onclick="openUpdateModal('{{ student.student_id }}','{{ student.name }}','{{ student.roll_no }}','{{ student.class_id }}','{{ student.admission_year }}')">Edit</button>
-          <button class="delete-btn" onclick="deleteStudent('{{ student.student_id }}')">Delete</button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <table id="studentsTable">
+        <thead>
+            <tr>
+                <th>ID</th><th>Name</th><th>Roll No</th>
+                <th>Class</th><th>Year</th><th>Eligibility</th><th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-  <!-- Add Modal -->
-  <div class="modal" id="addModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('addModal')">&times;</span>
-      <h3>Add Student</h3>
-      <form id="addForm">
-        <input type="text" name="name" placeholder="Name" required>
-        <input type="text" name="roll_no" placeholder="Roll No" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <select name="class_id" required>
-          <option value="">Select Class</option>
-          {% for c in classes %}
-          <option value="{{ c.class_id }}">{{ c.class_name }}</option>
-          {% endfor %}
-        </select>
-        <input type="number" name="admission_year" placeholder="Admission Year" required>
-        <button type="submit">Add</button>
-      </form>
+    <!-- Modal for Add/Edit -->
+    <div id="studentModal" style="display:none;">
+        <form id="studentForm">
+            <input type="hidden" id="student_id" name="student_id">
+            <input type="text" id="name" name="name" placeholder="Name" required>
+            <input type="text" id="roll_no" name="roll_no" placeholder="Roll No" required>
+            <input type="password" id="password" name="password" placeholder="Password">
+            <input type="number" id="class_id" name="class_id" placeholder="Class ID" required>
+            <input type="number" id="admission_year" name="admission_year" placeholder="Admission Year" required>
+            <button type="submit">Save</button>
+        </form>
     </div>
-  </div>
 
-  <!-- Update Modal -->
-  <div class="modal" id="updateModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('updateModal')">&times;</span>
-      <h3>Update Student</h3>
-      <form id="updateForm">
-        <input type="hidden" name="student_id" id="update_student_id">
-        <input type="text" name="name" id="update_name" required>
-        <input type="text" name="roll_no" id="update_roll_no" required>
-        <input type="password" name="password" placeholder="(Leave blank to keep current)">
-        <select name="class_id" id="update_class_id" required>
-          {% for c in classes %}
-          <option value="{{ c.class_id }}">{{ c.class_name }}</option>
-          {% endfor %}
-        </select>
-        <input type="number" name="admission_year" id="update_year" required>
-        <button type="submit">Update</button>
-      </form>
-    </div>
-  </div>
+    <script>
+        async function loadStudents() {
+            const res = await fetch("/admin/students-data");
+            const students = await res.json();
+            const tbody = document.querySelector("#studentsTable tbody");
+            tbody.innerHTML = "";
+            students.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.student_id}</td>
+                        <td>${s.name}</td>
+                        <td>${s.roll_no}</td>
+                        <td>${s.class_id}</td>
+                        <td>${s.admission_year}</td>
+                        <td>${s.is_eligible ? "✅" : "❌"}</td>
+                        <td>
+                            <button onclick="openEditModal(${s.student_id}, '${s.name}', '${s.roll_no}', ${s.class_id}, ${s.admission_year})">Edit</button>
+                            <button onclick="deleteStudent(${s.student_id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-  <script src="{{ url_for('static', path='js/adminStudents.js') }}"></script>
+        async function deleteStudent(id) {
+            if (!confirm("Delete this student?")) return;
+            await fetch(`/admin/delete-student/${id}`, { method: "DELETE" });
+            loadStudents();
+        }
+
+        function openAddModal() {
+            document.getElementById("studentForm").reset();
+            document.getElementById("student_id").value = "";
+            document.getElementById("studentModal").style.display = "block";
+        }
+
+        function openEditModal(id, name, roll_no, class_id, year) {
+            document.getElementById("student_id").value = id;
+            document.getElementById("name").value = name;
+            document.getElementById("roll_no").value = roll_no;
+            document.getElementById("class_id").value = class_id;
+            document.getElementById("admission_year").value = year;
+            document.getElementById("studentModal").style.display = "block";
+        }
+
+        document.getElementById("studentForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const id = formData.get("student_id");
+            const url = id ? "/admin/update-student" : "/admin/add-student";
+            await fetch(url, { method: "POST", body: formData });
+            document.getElementById("studentModal").style.display = "none";
+            loadStudents();
+        };
+
+        loadStudents();
+    </script>
 </body>
 </html>

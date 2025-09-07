@@ -2,28 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SIES-TES Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIES-TES Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Main Dashboard Layout -->
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <img src="{{ url_for('static', path='sies_logo.png') }}" class="logo" alt="Logo">
-            <h2 class="welcome">Welcome {{ student_name }}</h2>
-            <a href="/dashboard"><button>Dashboard</button></a>
-            <a href="/module-rating"><button>Module Rating</button></a>
-            <a href="/resources"><button>Resources</button></a>
-            <a href="/logout">
-            <button style="margin-top: 20px; background-color: #ff4d4d; color: white;">
-            Logout
-            </button>
+            <div class="logo-container">
+                <img src="{{ url_for('static', path='sies_logo.png') }}" class="logo" alt="Logo">
+                <p class="college-name">SIES COLLEGE OF ARTS, SCIENCE, & COMMERCE</p>
+            </div>
+            <h2 class="welcome">Welcome {{ student.name }}</h2>
+
+            <a href="/dashboard">
+                <button class="nav-link-btn">Dashboard</button>
+            </a>
+            <a href="/module-rating">
+                <button class="nav-link-btn">Module-Rating</button>
+            </a>
+            <a href="/resources">
+                <button class="nav-link-btn">Resources</button>
+            </a>
+            <a href="logout">
+                <button class="nav-link-btn logout-btn mt-auto">
+                    Logout
+                </button>
             </a>
 
-            <div class="contact-box">
+            <div class="contact-box mt-4 p-4 rounded-lg text-sm">
                 <p>
-                    Contact Info: +91 8591086432<br>
-                    College Phone Number: XXX-XX-XXXX<br>
+                    Contact Info: +91 8591086432 <br>
+                    College Phone Number: XXX-XX-XXXX <br>
                     About us: XYZ
                 </p>
             </div>
@@ -35,25 +49,8 @@
                 <h1>Academic Insights</h1>
             </div>
 
-            <div class="content-area">
-                <!-- Overall Rating Box -->
-                <div class="rating-box">
-                    <p><strong>Overall Rating:</strong></p>
-                    <div class="rating-bar"></div>
-                </div>
-
-                <!-- Recent Review Box -->
-                <div class="recent-review">
-                    <h3>Recent Review</h3>
-                    <div class="review-bar"></div>
-                    <div class="actions">
-                        <span class="view">View</span>
-                        <span class="update">Update</span>
-                        <span class="delete">Delete</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- Content Area with ratings -->
+             
+<script src="{{ url_for('static', path='js/dashboard.js') }}"></script>
 </body>
 </html>

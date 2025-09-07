@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData
 metadata = MetaData()
 
 students = Table(
-    "students",  # ✅ This matches your actual table name
+    "students",  # This matches your actual table name
     metadata,
     Column("student_id", Integer, primary_key=True, autoincrement=True),
     Column("name", String(100)),

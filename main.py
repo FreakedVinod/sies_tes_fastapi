@@ -2,20 +2,22 @@
 
 from fastapi import FastAPI
 from app.database import database
-from app.routes import students
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
-from fastapi import Depends
-
+from starlette.middleware.sessions import SessionMiddleware
+from app.routes import students
 from app.routes import admin
+from app.routes import feedback
 
-import aiomysql
 
 app = FastAPI()
+
+# Add session middleware (use a strong secret key)
+app.add_middleware(SessionMiddleware, secret_key="VinodKamrajAcharya")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
@@ -49,9 +51,10 @@ def admin_login_form(request: Request):
     return templates.TemplateResponse("adminLogin.html", {"request": request})
 
 
-@app.get("/logout")
+
+@app.get("student/logout")
 async def logout(request: Request):
-    response = RedirectResponse(url="/login-form", status_code=302)
+    response = RedirectResponse(url="/student/login-form", status_code=302)
     response.delete_cookie("student_roll_number")
     return response
 
@@ -63,8 +66,10 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
+
 app.include_router(students.router)
 app.include_router(admin.router)
+app.include_router(feedback.router)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):

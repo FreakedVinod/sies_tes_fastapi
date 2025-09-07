@@ -1,143 +1,208 @@
-/* Reset defaults */
-* {
-    box-sizing: border-box;
+:root {
+    --primary-color: #6a5acd;
+    --secondary-color: #3b3a62;
+    --white-color: #fff;
+    --text-color: #fff; /* Sidebar text */
+    --content-text-color: #111; /* Main content text */
+    --logout-color: #e57373;
+    --star-color: #fbbf24; /* for module rating stars */
+    --table-header-bg: #4b497d;
+    --table-row-hover: #f3f4f6;
+}
+
+/* General body */
+body {
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f0f2f5;
+    /* Do not set default color to white to avoid content issues */
 }
 
-/* Body and layout */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f5fa;
-}
-
+/* Layout */
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #0a4aad;
-    color: white;
+    background-color: var(--secondary-color);
+    color: var(--text-color); /* white text */
+    padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
+    border-radius: 0 20px 20px 0;
 }
 
-.logo {
-    width: 120px;
-    height: 120px;
+.sidebar .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.sidebar .logo {
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
+    border: 2px solid var(--white-color);
     margin-bottom: 10px;
 }
 
-.welcome {
-    font-size: 18px;
-    margin: 10px 0 20px 0;
+.sidebar .college-name {
+    font-weight: 600;
     text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.2;
 }
 
-.sidebar button {
-    width: 90%;
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: white;
-    color: #0a4aad;
-    font-weight: bold;
+.sidebar .welcome {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 20px 0;
 }
 
-.sidebar a {
-    text-decoration: none;
+.sidebar .nav-link-btn {
     width: 100%;
-    display: flex;
-    justify-content: center;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    background-color: #4b497d; /* default button color */
+    color: var(--white-color);
+    transition: background-color 0.3s ease;
+}
+
+.sidebar .nav-link-btn:hover,
+.sidebar .nav-link-btn.active {
+    background-color: var(--primary-color);
+}
+
+.sidebar .logout-btn {
+    background-color: var(--logout-color);
+    color: var(--white-color);
+    margin-top: auto;
+}
+
+.sidebar .logout-btn:hover {
+    background-color: #d32f2f;
 }
 
 .contact-box {
-    background-color: #6674ff;
-    margin-top: auto;
-    padding: 10px;
-    font-size: 13px;
-    text-align: center;
-    width: 90%;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-/* Main content */
-.main-content {
-    flex: 1;
-    padding: 30px;
-    background-color: #f3f5fa;
-}
-
-.header h1 {
-    font-size: 28px;
-    margin-bottom: 20px;
-}
-
-/* Content layout */
-.content-area {
-    display: flex;
-    gap: 20px;
-}
-
-/* Overall Rating */
-.rating-box {
-    flex: 2;
-    border: 2px solid purple;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-}
-
-.rating-bar {
-    background-color: #004aad;
-    height: 200px;
-    width: 100%;
     margin-top: 20px;
+    font-size: 0.9rem;
+    text-align: center;
+    color: var(--white-color);
 }
 
-/* Recent Review */
-.recent-review {
-    flex: 1;
-    border: 2px solid black;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #f9fafb;
+    color: var(--content-text-color); /* dark text for readability */
 }
 
-.review-bar {
-    background-color: #004aad;
-    height: 20px;
+/* Header */
+.header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--primary-color);
+}
+
+.header p {
+    color: #6b7280; /* gray-600 */
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Card style for tables and sections */
+.card {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    color: var(--content-text-color);
+}
+
+/* Table */
+.subject-table {
     width: 100%;
-    margin-bottom: 10px;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.actions {
+.subject-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--table-header-bg);
+    font-weight: 600;
+    color: var(--white-color);
+}
+
+.subject-table td {
+    padding: 12px 16px;
+    color: var(--content-text-color);
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.subject-table tr:hover {
+    background-color: var(--table-row-hover);
+    cursor: pointer;
+}
+
+/* Subject link */
+.subject-link {
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.subject-link:hover {
+    text-decoration: underline;
+}
+
+/* Stars */
+.stars {
+    font-size: 1.2rem;
     display: flex;
-    gap: 10px;
-    font-size: 14px;
-    margin-top: 10px;
+    align-items: center;
 }
 
-.actions .view {
-    color: #00cc99;
+.stars .filled {
+    color: var(--star-color);
 }
 
-.actions .update {
-    color: #ffd966;
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
 }
 
-.actions .delete {
-    color: #ff4d4d;
+.stars .empty {
+    color: #d1d5db; /* light gray for empty stars */
 }
