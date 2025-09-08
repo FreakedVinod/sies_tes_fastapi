@@ -1,14 +1,57 @@
 CREATE DATABASE sies_tes;
 USE sies_tes;
 
--- Courses
+CREATE TABLE streams (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO streams (name) VALUES 
+('Arts'),
+('Science'),
+('Commerce');
+
+desc streams;
+select * from streams;
+
 CREATE TABLE courses (
     course_id INT AUTO_INCREMENT PRIMARY KEY,
     course_name VARCHAR(100) NOT NULL,
     FOREIGN KEY (stream_id) REFERENCES streams(id)
 );
 
--- Classes
+INSERT INTO courses (course_name, stream_id) VALUES
+('B.A.M.M.C. (Bachelor of Arts in Mass Media and Communication)', 1),
+
+('B.Sc. in Computer Science', 2),
+('B.Sc. in Information Technology', 2),
+('B.Sc. in Packaging Technology', 2),
+('B.Sc. in Environmental Science', 2),
+('B.Sc. in Data Science', 2),
+
+('B.Com. (Bachelor of Commerce)', 3),
+('B.Com. (Accounting & Finance)', 3),
+('B.Com. (Banking & Insurance)', 3),
+('B.Com. (Financial Markets)', 3),
+('B.M.S. (Bachelor of Management Studies)', 3),
+('B.Com. (Management Accounting with Finance)', 3),
+('B.Com. (Entrepreneurship)', 3);
+
+-- Postgraduate Courses
+INSERT INTO courses (course_name, stream_id) VALUES
+('M.Sc. in Computer Science', 2),
+('M.Sc. in Information Technology', 2),
+('M.Sc. in Environmental Science', 2),
+
+('M.A. in Business Economics', 1),
+('M.A. in Journalism and Mass Communication', 1),
+
+('M.Com. (Advanced Accountancy)', 3),
+('M.Com. in Business Management', 3);
+
+desc courses;
+select * from courses;
+
 CREATE TABLE classes (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
     class_name VARCHAR(50) NOT NULL,
@@ -16,7 +59,94 @@ CREATE TABLE classes (
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL
 );
 
--- Students
+-- B.A.M.M.C.
+INSERT INTO classes (class_name) VALUES 
+('FYBMM'), ('SYBMM'), ('TYBMM'),
+
+-- B.Sc. in Information Technology
+('FYBSCIT'), ('SYBSCIT'), ('TYBSCIT'),
+
+-- B.Sc. in Computer Science
+('FYBSCCS'), ('SYBSCCS'), ('TYBSCCS'),
+
+-- B.Sc. in Packaging Technology
+('FYBSCPT'), ('SYBSCPT'), ('TYBSCPT'),
+
+-- B.Sc. in Environmental Science
+('FYBSCES'), ('SYBSCES'), ('TYBSCES'),
+
+-- B.Sc. in Data Science
+('FYBSCDS'), ('SYBSCDS'), ('TYBSCDS'),
+
+-- B.Com. (Bachelor of Commerce)
+('FYBCOM'), ('SYBCOM'), ('TYBCOM'),
+
+-- B.Com. (Accounting & Finance)
+('FYBAF'), ('SYBAF'), ('TYBAF'),
+
+-- B.Com. (Banking & Insurance)
+('FYBBI'), ('SYBBI'), ('TYBBI'),
+
+-- B.Com. (Financial Markets)
+('FYBFM'), ('SYBFM'), ('TYBFM'),
+
+-- B.M.S. (Bachelor of Management Studies)
+('FYBMS'), ('SYBMS'), ('TYBMS'),
+
+-- B.Com. (Management Accounting with Finance)
+('FYBMAF'), ('SYBMAF'), ('TYBMAF'),
+
+-- B.Com. (Entrepreneurship)
+('FYBE'), ('SYBE'), ('TYBE'),
+
+-- M.A. in Business Economics
+('PART1MABE'), ('PART2MABE'),
+
+-- M.A. in Journalism and Mass Communication
+('PART1MAJMC'), ('PART2MAJMC'),
+
+-- M.Sc. in Information Technology
+('PART1MSCIT'), ('PART2MSCIT'),
+
+-- M.Sc. in Computer Science
+('PART1MSCCS'), ('PART2MSCCS'),
+
+-- M.Sc. in Environmental Science
+('PART1MSCES'), ('PART2MSCES'),
+
+-- M.Com. (Advanced Accountancy)
+('PART1MCOMAA'), ('PART2MCOMAA'),
+
+-- M.Com. in Business Management
+('PART1MCOMBM'), ('PART2MCOMBM');
+
+desc classes;
+select * from classes;
+
+CREATE TABLE subjects (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_name VARCHAR(100) NOT NULL
+);
+
+INSERT INTO subjects (subject_id, subject_name)
+VALUES (1, 'Artificial Intelligence'), (2, 'Artificial Intelligence Practical'), (3, 'Data Storage Techniques'), (4, 'Data Storage Techniques Practical'), (5, 'Cryptography in Ancient India'), (6, 'Information and Network Security'), (7, 'Information and Network Security Practical'), (8, 'Java Script and Allied Technologies - I'), (9, 'Java Script and Allied Technologies - I Practical'), (10,'Decision Making Techniques'), (11,'Decision Making Techniques Practical');
+
+desc subjects;
+select * from subjects;
+
+CREATE TABLE class_subjects (
+    class_id INT NOT NULL,
+    subject_id INT NOT NULL,
+    PRIMARY KEY (class_id, subject_id),
+    FOREIGN KEY (class_id) REFERENCES classes(class_id),
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
+);
+
+insert into class_subjects(class_id, subject_id) values (6,1),(6,2),(6,3),(6,4),(6,5),(6,6),(6,7),(6,8),(6,9),(6,10),(6,11);
+
+desc class_subjects;
+select * from class_subjects;
+
 CREATE TABLE students (
     student_id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -27,13 +157,36 @@ CREATE TABLE students (
     FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL
 );
 
--- Streams
-CREATE TABLE streams (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+desc students;
+select * from students;
+
+CREATE TABLE teachers (
+    teacher_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
 );
 
--- Eligibility
+INSERT INTO teachers (teacher_id, name)
+VALUES (1,'Dr. Anu Thomas'), (2, 'Ms. Sameera Ibrahim'), (3, 'Ms. Minal Sarode'), (4, 'Ms. Rashmi Prabha'), (5, 'Dr. Meghna Bhatia'), (6, 'Ms. Arti Bansode'), (7, 'Ms. Shaima Thange');
+
+desc teachers;
+select * from teachers;
+
+CREATE TABLE teacher_subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    teacher_id INT NOT NULL,
+    subject_id INT NOT NULL,
+    class_id INT NOT NULL,
+    teaching_type ENUM('Theory', 'Practical') NOT NULL DEFAULT 'Theory',
+    FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
+);
+
+insert into teacher_subjects (id, teacher_id, subject_id, class_id, teaching_type) values (1, 1, 1, 6, 'Theory'), (2, 1, 2, 6, 'Practical'), (3, 2, 2, 6, 'Practical'), (4, 3, 3, 6, 'Theory'), (5, 3, 4, 6, 'Practical'), (6, 4, 5, 6, 'Theory'), (7, 5, 6, 6, 'Theory'), (8, 5, 7, 6, 'Practical'), (9, 6, 8, 6, 'Theory'), (10, 6, 9, 6, 'Practical'), (11, 7, 10, 6, 'Theory'), (12, 7, 11, 6, 'Practical');
+
+desc teacher_subjects;
+select * from teacher_subjects;
+
 CREATE TABLE eligibility (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
@@ -41,93 +194,31 @@ CREATE TABLE eligibility (
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
 );
 
-INSERT INTO streams (name) VALUES 
-('Arts'),
-('Science'),
-('Commerce');
+desc eligibility;
+select * from eligibility;
 
-INSERT INTO courses (course_name, stream_id) VALUES
-('B.A.M.M.C. (Bachelor of Arts in Mass Media and Communication)', 1),
-('B.Sc. in Computer Science', 2),
-('B.Sc. in Information Technology', 2),
-('B.Sc. in Packaging Technology', 2),
-('B.Sc. in Environmental Science', 2),
-('B.Sc. in Data Science', 2),
-('B.Com. (Bachelor of Commerce)', 3),
-('B.Com. (Accounting & Finance)', 3),
-('B.Com. (Banking & Insurance)', 3),
-('B.Com. (Financial Markets)', 3),
-('B.M.S. (Bachelor of Management Studies)', 3),
-('B.Com. (Management Accounting with Finance)', 3),
-('B.Com. (Entrepreneurship)', 3),
-('M.Sc. in Computer Science', 2),
-('M.Sc. in Information Technology', 2),
-('M.Sc. in Environmental Science', 2),
-('M.A. in Business Economics', 1),
-('M.A. in Journalism and Mass Communication', 1),
-('M.Com. (Advanced Accountancy)', 3),
-('M.Com. in Business Management', 3);
+CREATE TABLE feedback (
+    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    teacher_subject_id INT NOT NULL,
+    question_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_subject_id) REFERENCES teacher_subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE
+);
 
-INSERT INTO classes (class_name, course_id)
-VALUES
-('FYBMM', 1), ('SYBMM', 1), ('TYBMM', 1),
-('FYBSCIT', 3), ('SYBSCIT', 3), ('TYBSCIT', 3),
-('FYBSCCS', 2), ('SYBSCCS', 2), ('TYBSCCS', 2),
-('FYBSCPT', 4), ('SYBSCPT', 4), ('TYBSCPT', 4),
-('FYBSCES', 5), ('SYBSCES', 5), ('TYBSCES', 5),
-('FYBSCDS', 6), ('SYBSCDS', 6), ('TYBSCDS', 6),
-('FYBCOM', 7), ('SYBCOM', 7), ('TYBCOM', 7),
-('FYBAF', 8), ('SYBAF', 8), ('TYBAF', 8),
-('FYBBI', 9), ('SYBBI', 9), ('TYBBI', 9),
-('FYBFM', 10), ('SYBFM', 10), ('TYBFM', 10),
-('FYBMS', 11), ('SYBMS', 11), ('TYBMS', 11),
-('FYBMAF', 12), ('SYBMAF', 12), ('TYBMAF', 12),
-('FYBE', 13), ('SYBE', 13), ('TYBE', 13),
-('PART1MABE', 17), ('PART2MABE', 17),
-('PART1MAJMC', 18), ('PART2MAJMC', 18),
-('PART1MSCIT', 15), ('PART2MSCIT', 15),
-('PART1MSCCS', 14), ('PART2MSCCS', 14),
-('PART1MSCES', 16), ('PART2MSCES', 16),
-('PART1MCOMAA', 19), ('PART2MCOMAA', 19),
-('PART1MCOMBM', 20), ('PART2MCOMBM', 20);
+desc feedback;
+select * from feedback;
 
--- Reset students table (for testing)
-DELETE FROM students WHERE student_id > 0;
-ALTER TABLE students AUTO_INCREMENT = 1;
+CREATE TABLE questions (
+    question_id INT AUTO_INCREMENT PRIMARY KEY,
+    question_text VARCHAR(255) NOT NULL,
+    class_id INT, -- optional (if some questions differ by class)
+    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE
+);
 
--- Fix wrong mapping (example)
-UPDATE classes
-SET course_id = 20
-WHERE class_id IN (52, 53);
+desc questions;
+select * from questions;
 
--- Show all tables
-SHOW TABLES;
-
--- Show records
-SELECT * FROM streams;
-SELECT * FROM courses;
-SELECT * FROM classes;
-SELECT * FROM students;
-SELECT * FROM eligibility;
-
--- Get all students with course info
-SELECT student_id, name, roll_no, admission_year, course_id
-FROM students
-ORDER BY student_id;
-
--- Join students with eligibility
-SELECT s.student_id, s.name, s.roll_no, s.class_id,
-       COALESCE(e.is_eligible, 0) AS is_eligible
-FROM students s
-LEFT JOIN eligibility e ON s.student_id = e.student_id
-ORDER BY s.class_id;
-
--- So your friends only need to:
-
--- 1. Run Step 1 & 2 to create DB + tables.
-
--- 2. Run Step 3 to insert master data (streams, courses, classes).
-
--- 3. Use Step 4 only when they want to reset/fix.
-
--- 4. Use Step 5 to test and see results.
+show tables;

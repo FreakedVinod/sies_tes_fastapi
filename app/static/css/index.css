@@ -14,15 +14,16 @@ body {
 /* Cards container */
 .cards-container {
     display: flex;
-    flex-direction: column; /* stack title + cards vertically */
+    flex-direction: row; /* Changed to 'row' to put cards side-by-side */
+    justify-content: center; /* Center the cards horizontally */
     align-items: center;
-    gap: 40px;
+    gap: 40px; /* Added a gap between the cards */
 }
 
 /* Subtle page title */
 .page-title {
     font-size: 2rem;
-    color: #6a5acd;       /* primary color */
+    color: #6a5acd; /* primary color */
     margin: 0;
     font-weight: 700;
     text-align: center;
