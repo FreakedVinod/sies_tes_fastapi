@@ -12,7 +12,7 @@ templates = Jinja2Templates(directory="app/templates")
 # -------------------------
 # Student Registration
 # -------------------------
-@router.post("/register")
+@router.post("studentRegister")
 async def register_student(
     name: str = Form(...),
     roll_number: str = Form(...),
@@ -42,7 +42,7 @@ async def register_student(
 # -------------------------
 # Student Login
 # -------------------------
-@router.post("/login")
+@router.post("/studentLogin")
 async def login_student(request: Request, roll_number: str = Form(...), password: str = Form(...)):
     query = students.select().where(students.c.roll_no == roll_number)
     student = await database.fetch_one(query)
@@ -240,7 +240,7 @@ async def submit_feedback(request: Request, teacher_subject_id: int = Form(...))
     return RedirectResponse(url="/module-rating", status_code=303)
 
 # -------------------------
-# Logout
+# Student Logout
 # -------------------------
 @router.get("/logout")
 async def logout(request: Request):

@@ -1,7 +1,7 @@
 /* General Page */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #41308e, #7270dd);
+    background: linear-gradient(135deg, #8d68c9, #3a146a);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,15 +15,21 @@ body {
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    width: 350px;
+    width: 380px;
     text-align: center;
     animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Heading */
-h2 {
-    color: #242983;
-    font-size: 24px;
+/* Branding */
+.brand {
+    color: #362483;
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.title {
+    color: #444;
+    font-size: 20px;
     margin-bottom: 25px;
 }
 
@@ -34,13 +40,16 @@ form {
     gap: 18px;
 }
 
+.form-group {
+    text-align: left;
+}
+
 label {
     display: block;
     font-size: 14px;
     margin-bottom: 6px;
     font-weight: 600;
     color: #333;
-    text-align: left;
 }
 
 input {
@@ -51,8 +60,6 @@ input {
     font-size: 15px;
     box-sizing: border-box;
     transition: 0.3s ease;
-    background: #fff;
-    font-family: inherit;
 }
 
 input:focus {
@@ -62,10 +69,10 @@ input:focus {
 }
 
 /* Button */
-button {
+.btn {
     margin-top: 10px;
     padding: 12px;
-    background: #4a3ba5;
+    background: #6a5acd;
     color: #fff;
     font-weight: bold;
     border: none;
@@ -75,25 +82,25 @@ button {
     transition: all 0.3s ease;
 }
 
-button:hover {
-    background: #5f49c1;
+.btn:hover {
+    background: #5941c0;
     transform: translateY(-2px);
 }
 
-/* Register link */
-.register-link {
+/* Back link */
+.back-link {
     margin-top: 20px;
 }
 
-.register-link a {
+.back-link a {
     text-decoration: none;
     font-size: 14px;
-    color: #3e1a68;
+    color: #362483;
     font-weight: 500;
     transition: 0.3s ease;
 }
 
-.register-link a:hover {
+.back-link a:hover {
     color: #000;
 }
 

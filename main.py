@@ -52,12 +52,6 @@ def admin_login_form(request: Request):
 
 
 
-@app.get("student/logout")
-async def logout(request: Request):
-    response = RedirectResponse(url="/student/login-form", status_code=302)
-    response.delete_cookie("student_roll_number")
-    return response
-
 @app.on_event("startup")
 async def startup():
     await database.connect()

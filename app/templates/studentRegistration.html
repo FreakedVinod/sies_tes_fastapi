@@ -7,42 +7,60 @@
 </head>
 <body>
     <div class="container">
-        <h1>SIES-TES</h1>
-        <h2>Register as a Student</h2>
-        <form method="POST" action="/register">
-            <label for="name">Full Name:</label>
-            <input type="text" name="name" required>
+        <h1 class="brand">SIES-TES</h1>
+        <h2 class="title">Student Registration</h2>
 
-            <label for="roll_number">Roll Number:</label>
-            <input type="text" name="roll_number" required>
+        <form method="POST" action="/studentRegister">
+            <table class="form-table">
+                <tr>
+                    <td><label for="name">Full Name</label></td>
+                    <td><input type="text" name="name" id="name" required></td>
+                </tr>
+                <tr>
+                    <td><label for="roll_number">Roll Number</label></td>
+                    <td><input type="text" name="roll_number" id="roll_number" required></td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td><input type="password" name="password" id="password" required></td>
+                </tr>
+                <tr>
+                    <td><label for="stream">Stream</label></td>
+                    <td>
+                        <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
+                            <option value="">-- Select Stream --</option>
+                            <option value="1">Arts</option>
+                            <option value="2">Science</option>
+                            <option value="3">Commerce</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="course">Course</label></td>
+                    <td>
+                        <select id="course" name="course_id" required>
+                            <option value="">-- Select Course --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="class">Class</label></td>
+                    <td>
+                        <select id="class" name="class_id" required>
+                            <option value="">-- Select Class --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="admission_year">Admission Year</label></td>
+                    <td><input type="number" name="admission_year" id="admission_year" min="2023" max="2030" required></td>
+                </tr>
+            </table>
 
-            <label for="password">Password:</label>
-            <input type="password" name="password" required>
-
-            <label for="stream">Stream:</label>
-            <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
-                <option value="">-- Select Stream --</option>
-                <option value="1">Arts</option>
-                <option value="2">Science</option>
-                <option value="3">Commerce</option>
-            </select>
-
-            <label for="course_id">Course:</label>
-            <select id="course" name="course_id" required>
-                <option value="">-- Select Course --</option>
-            </select>
-
-            <label for="class_id">Class</label>
-            <select id="class" name="class_id" required>
-                <option value="">-- Select Class --</option>
-            </select>
-
-            <label for="admission year">Admission Year</label>
-            <input type="number" name="admission_year" min="2023" max="2030" required>
-
-            <button type="submit">Register</button>
+            <button type="submit" class="btn">Register</button>
         </form>
-<script src="{{ url_for('static', path='js/studentRegistration.js') }}"></script>
+
+        <script src="{{ url_for('static', path='js/studentRegistration.js') }}"></script>
 
         <div class="back-link">
             <a href="/student/login-form">Already registered? Login</a>

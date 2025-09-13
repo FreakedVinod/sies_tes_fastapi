@@ -1,105 +1,160 @@
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background-color: #F4F6F9;
+:root {
+    --primary-color: #8776f4;
+    --secondary-color: #3a146a;
+    --white-color: #fff;
+    --text-color: #fff; /* Sidebar text */
+    --content-text-color: #111; /* Main content text */
+    --logout-color: #de5f5f;
+    --table-header-bg: #4b497d;
+    --table-row-hover: #f3f4f6;
 }
 
-.dashboard {
-  display: flex;
-  height: 100vh;
+/* General body */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+/* Layout */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 250px;
-  background-color: #1E2A38;
-  color: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+    width: 250px;
+    background-color: var(--secondary-color);
+    color: var(--text-color); /* white text */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0 20px 20px 0;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    color: var(--white-color);
+    margin: 0;
+}
+
+.sidebar .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
 .sidebar .logo {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 30px;
-  text-align: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid var(--white-color);
+    margin-bottom: 10px;
 }
 
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
+.sidebar .college-name {
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.2;
 }
 
-.sidebar nav ul li {
-  margin: 15px 0;
+.sidebar .welcome {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 20px 0;
 }
 
-.sidebar nav ul li a {
-  text-decoration: none;
-  color: #ddd;
-  font-weight: 500;
-  display: block;
-  padding: 10px;
-  border-radius: 8px;
-  transition: background 0.3s, color 0.3s;
+/* Sidebar navigation links */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
 }
 
-.sidebar nav ul li a:hover {
-  background-color: #2E86DE;
-  color: #fff;
+.sidebar-nav .nav-link-btn {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    background-color: #502ea1; /* default button color */
+    color: var(--white-color);
+    transition: background-color 0.3s ease;
 }
 
-/* Main content */
+.sidebar-nav .nav-link-btn:hover,
+.sidebar-nav .nav-link-btn.active {
+    background-color: var(--primary-color);
+}
+
+.sidebar-nav .nav-link.logout .nav-link-btn {
+    background-color: var(--logout-color);
+    color: var(--white-color);
+    margin-top: auto;
+}
+
+.sidebar-nav .nav-link.logout .nav-link-btn:hover {
+    background-color: #fa7f7f;
+}
+
+/* Main Content */
 .main-content {
-  flex-grow: 1;
-  padding: 20px 40px;
+    flex-grow: 1;
+    padding: 40px 30px;
+    background-color: #f9fafb;
+    color: var(--content-text-color);
 }
 
-.main-content header {
-  margin-bottom: 20px;
+.main-content .welcome {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 10px;
 }
 
-.main-content h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
+.main-content p {
+    font-size: 1rem;
+    color: #555;
 }
 
-#content-area {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+/* Card/Table Styling (if needed later) */
+.card {
+    background-color: #fff;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 18px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
 
-table th, table td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
+    .sidebar {
+        width: 100%;
+        border-radius: 15px 15px 0 0;
+        padding: 16px;
+    }
 
-table th {
-  background: #2E86DE;
-  color: white;
-}
-
-button {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 2px;
-}
-
-button:hover {
-  opacity: 0.8;
+    .main-content {
+        padding: 20px;
+    }
 }

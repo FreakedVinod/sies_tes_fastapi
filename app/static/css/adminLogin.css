@@ -1,7 +1,7 @@
 /* General Page */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #41308e, #7270dd);
+    background: linear-gradient(135deg, #8d68c9, #3a146a);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,11 +20,11 @@ body {
     animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Heading */
-h2 {
-    color: #242983;
-    font-size: 24px;
-    margin-bottom: 25px;
+/* Branding */
+.brand {
+    color: #362483;
+    font-size: 28px;
+    margin-bottom: 5px;
 }
 
 /* Form Styling */

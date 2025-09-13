@@ -2,11 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Registration</title>
-    <link rel="stylesheet" href="/static/css/admin.css">
+    <title>Student Login</title>
+    <link rel="stylesheet" href="/static/css/adminLogin.css">
 </head>
 <body>
-<h1>This is the Admin Login Page</h1>
-<a href="/admin/register-form">Seeing this first time, make sure you are registered.</a>
+    <div class="container">
+        <h2 class="brand">Admin Login</h2>
+        <form method="POST" action="/adminLogin">
+            <label for="admin_name">Name:</label>
+            <input type="text" id="admin_name" name="admin_name" required>
+
+            <label for="admin_password">Password:</label>
+            <input type="admin_password" id="admin_password" name="admin_password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <div class="register-link">
+            <a href="/admin/register-form">Came here first time? Visit here to register</a>
+        </div>
+    </div>
+    {% if error %}
+    <script>
+        alert("{{ error }}")
+    </script>
+    {% endif %}
 </body>
 </html>
