@@ -84,3 +84,14 @@ uvicorn main:app --reload
 2. Open the application in your browser:
 
 http://127.0.0.1:8000
+
+3. Student Actions:
+
+Register → Login → Fill Feedback → Submit.
+
+4. Admin Actions:
+
+Login → Manage courses, classes, teachers → Enable/disable feedback → View reports.
+
+## Screenshots
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/73dfdc09-c6ce-437d-875b-888ed8a500cb" />
