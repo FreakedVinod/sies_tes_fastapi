@@ -221,4 +221,13 @@ CREATE TABLE questions (
 desc questions;
 select * from questions;
 
+create table admins (
+	admin_id int auto_increment primary key,
+    admin_name varchar(100) not null,
+    admin_password varchar(255) not null,
+    admin_email varchar(255) not null
+);
+desc admins;
+select * from admins;
+
 show tables;
