@@ -74,7 +74,7 @@ Run the provided SQL scripts to create tables (students, courses, classes, teach
 
 DATABASE_URL = "mysql+aiomysql://username:password@localhost/sies_tes"
 
--- Usage
+## Usage
 
 1. Start the FastAPI server:
 
