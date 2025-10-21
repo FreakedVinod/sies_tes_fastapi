@@ -8,11 +8,51 @@ import bcrypt
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
+# Query 1: Calculates the average rating for each subject in the student's class (for the Left Card)
+SQL_CLASS_AVERAGES = """
+SELECT
+    s.subject_name,
+    CAST(AVG(f.rating) AS DECIMAL(10, 2)) AS average_rating,
+    COUNT(DISTINCT f.student_id) AS total_students_rated
+FROM
+    feedback f
+INNER JOIN
+    students st ON f.student_id = st.student_id
+INNER JOIN
+    teacher_subjects ts ON f.teacher_subject_id = ts.id
+INNER JOIN
+    subjects s ON ts.subject_id = s.subject_id
+WHERE
+    st.class_id = :class_id -- Placeholder for the student's class_id
+GROUP BY
+    s.subject_name
+ORDER BY
+    average_rating DESC;
+"""
+
+# Query 2: Retrieves the 5 most recent rating submissions/updates by the student (for the Right Card)
+SQL_STUDENT_ACTIVITY = """
+SELECT
+    s.subject_name,
+    f.rating,
+    f.updated_at AS feedback_time
+FROM
+    feedback f
+INNER JOIN
+    teacher_subjects ts ON f.teacher_subject_id = ts.id
+INNER JOIN
+    subjects s ON ts.subject_id = s.subject_id
+WHERE
+    f.student_id = :student_id -- Placeholder for the student's student_id
+ORDER BY
+    f.updated_at DESC
+LIMIT 5;
+"""
 
 # -------------------------
 # Student Registration
 # -------------------------
-@router.post("studentRegister")
+@router.post("/studentRegister")
 async def register_student(
     name: str = Form(...),
     roll_number: str = Form(...),
@@ -66,12 +106,12 @@ async def show_dashboard(request: Request):
     if not student_id:
         return RedirectResponse(url="/login", status_code=302)
 
-    # Fetch student info including class_id
+    # 1. Fetch student info including class_id
     student_query = "SELECT * FROM students WHERE student_id = :student_id"
     student = await database.fetch_one(student_query, values={"student_id": student_id})
     class_id = student["class_id"]
 
-    # Fetch all subjects for student's class along with feedback status
+    # --- 2. EXISTING QUERY: Fetch all subjects for student's class along with feedback status ---
     modules_query = """
         SELECT ts.id AS teacher_subject_id, s.subject_name, t.name AS teacher_name,
                EXISTS(
@@ -87,16 +127,37 @@ async def show_dashboard(request: Request):
         WHERE cs.class_id = :class_id
         ORDER BY s.subject_name
     """
-    modules = await database.fetch_all(modules_query, values={
-        "student_id": student_id,
-        "class_id": class_id
-    })
 
+    # This variable name is kept as 'modules' for compatibility with other pages, but is also passed to the template.
+    modules = await database.fetch_all(
+        modules_query,
+        values={
+            "student_id": student_id,
+            "class_id": class_id
+        }
+    )
+
+    # --- 3. NEW: Fetch data for Left Card (Overall Subject Averages) ---
+    class_ratings = await database.fetch_all(
+        SQL_CLASS_AVERAGES,
+        values={"class_id": class_id}
+    )
+
+    # --- 4. NEW: Fetch data for Right Card (Recent Student Activity) ---
+    student_activity = await database.fetch_all(
+        SQL_STUDENT_ACTIVITY,
+        values={"student_id": student_id}
+    )
+
+    # 5. Render the dashboard with ALL data
     return templates.TemplateResponse("studentDashboard.html", {
         "request": request,
         "student": student,
-        "subjects": modules
+        "subjects": modules,              # Original data (can be removed if not used)
+        "class_ratings": class_ratings,   # Data for the Overall Averages card
+        "student_activity": student_activity  # Data for the Recent Activity card
     })
+
 
 
 # -------------------------
@@ -143,7 +204,7 @@ async def module_rating(request: Request):
         module_dict["student_avg_rating"] = round(result["student_avg"] if result and result["student_avg"] else 0, 1)
         updated_modules.append(module_dict)
 
-    return templates.TemplateResponse("moduleRating.html", {
+    return templates.TemplateResponse("studentModuleRating.html", {
         "request": request,
         "student": student,
         "modules": updated_modules

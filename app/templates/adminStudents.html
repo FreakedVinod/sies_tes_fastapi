@@ -3,64 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin - Manage Students</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/adminStudents.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/adminDashboard.css') }}">
+    <style>
+        /* Filter row */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        select, button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        /* Table styling */
+        #studentsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #studentsTable th, #studentsTable td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        #studentsTable tr:hover {
+            background-color: #f3f3f3;
+            cursor: pointer;
+        }
+
+        /* Hover actions */
+        .student-actions {
+            display: none;
+            gap: 10px;
+        }
+        tr:hover .student-actions {
+            display: inline-flex;
+        }
+
+        /* Modal */
+        #studentModal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
-    <h2>Students Management</h2>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        {% include 'adminSidebar.html' %}
 
-    <button onclick="openAddModal()">Add Student</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <h2>Manage Students</h2>
 
-    <table id="studentsTable">
-        <thead>
-            <tr>
-                <th>ID</th><th>Name</th><th>Roll No</th>
-                <th>Class</th><th>Year</th><th>Eligibility</th><th>Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+            <!-- Filters -->
+            <div class="filters">
+                <select id="streamFilter" onchange="loadCourses()">
+                    <option value="">Select Stream</option>
+                </select>
+                <select id="courseFilter" onchange="loadClasses()">
+                    <option value="">Select Course</option>
+                </select>
+                <select id="classFilter" onchange="loadStudents()">
+                    <option value="">Select Class</option>
+                </select>
+                <button onclick="openAddModal()">+ Add Student</button>
+            </div>
+
+            <!-- Students Table -->
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Roll No</th>
+                        <th>Class</th><th>Year</th><th>Eligibility</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </main>
+    </div>
 
     <!-- Modal for Add/Edit -->
-    <div id="studentModal" style="display:none;">
+    <div id="studentModal">
         <form id="studentForm">
             <input type="hidden" id="student_id" name="student_id">
             <input type="text" id="name" name="name" placeholder="Name" required>
             <input type="text" id="roll_no" name="roll_no" placeholder="Roll No" required>
             <input type="password" id="password" name="password" placeholder="Password">
-            <input type="number" id="class_id" name="class_id" placeholder="Class ID" required>
+            <select id="modalClass" name="class_id" required></select>
             <input type="number" id="admission_year" name="admission_year" placeholder="Admission Year" required>
             <button type="submit">Save</button>
+            <button type="button" onclick="closeModal()">Cancel</button>
         </form>
     </div>
 
     <script>
+        async function loadStreams() {
+            const res = await fetch("/admin/streams");
+            const streams = await res.json();
+            const streamFilter = document.getElementById("streamFilter");
+            streamFilter.innerHTML = `<option value="">Select Stream</option>`;
+            streams.forEach(s => {
+                streamFilter.innerHTML += `<option value="${s.stream_id}">${s.stream_name}</option>`;
+            });
+        }
+
+        async function loadCourses() {
+            const streamId = document.getElementById("streamFilter").value;
+            if (!streamId) return;
+            const res = await fetch(`/admin/courses/${streamId}`);
+            const courses = await res.json();
+            const courseFilter = document.getElementById("courseFilter");
+            courseFilter.innerHTML = `<option value="">Select Course</option>`;
+            courses.forEach(c => {
+                courseFilter.innerHTML += `<option value="${c.course_id}">${c.course_name}</option>`;
+            });
+        }
+
+        async function loadClasses() {
+            const courseId = document.getElementById("courseFilter").value;
+            if (!courseId) return;
+            const res = await fetch(`/admin/classes/${courseId}`);
+            const classes = await res.json();
+            const classFilter = document.getElementById("classFilter");
+            classFilter.innerHTML = `<option value="">Select Class</option>`;
+            classes.forEach(c => {
+                classFilter.innerHTML += `<option value="${c.class_id}">${c.class_name}</option>`;
+            });
+        }
+
         async function loadStudents() {
-            const res = await fetch("/admin/students-data");
+            const classId = document.getElementById("classFilter").value;
+            if (!classId) return;
+            const res = await fetch(`/admin/students/${classId}`);
             const students = await res.json();
             const tbody = document.querySelector("#studentsTable tbody");
             tbody.innerHTML = "";
             students.forEach(s => {
                 tbody.innerHTML += `
-                    <tr>
+                    <tr onclick="openStudentRatings('${s.student_id}')">
                         <td>${s.student_id}</td>
-                        <td>${s.name}</td>
+                        <td>
+                            ${s.name}
+                            <span class="student-actions">
+                                <button onclick="event.stopPropagation(); openEditModal('${s.student_id}', '${s.name}', '${s.roll_no}', ${s.class_id}, ${s.admission_year})">✏️</button>
+                                <button onclick="event.stopPropagation(); deleteStudent('${s.student_id}')">🗑</button>
+                            </span>
+                        </td>
                         <td>${s.roll_no}</td>
                         <td>${s.class_id}</td>
                         <td>${s.admission_year}</td>
                         <td>${s.is_eligible ? "✅" : "❌"}</td>
-                        <td>
-                            <button onclick="openEditModal(${s.student_id}, '${s.name}', '${s.roll_no}', ${s.class_id}, ${s.admission_year})">Edit</button>
-                            <button onclick="deleteStudent(${s.student_id})">Delete</button>
-                        </td>
                     </tr>
                 `;
             });
         }
 
-        async function deleteStudent(id) {
-            if (!confirm("Delete this student?")) return;
-            await fetch(`/admin/delete-student/${id}`, { method: "DELETE" });
-            loadStudents();
+        function openStudentRatings(studentId) {
+            window.open(`/admin/student-ratings/${studentId}`, "_blank");
         }
 
         function openAddModal() {
@@ -73,9 +180,19 @@
             document.getElementById("student_id").value = id;
             document.getElementById("name").value = name;
             document.getElementById("roll_no").value = roll_no;
-            document.getElementById("class_id").value = class_id;
+            document.getElementById("modalClass").value = class_id;
             document.getElementById("admission_year").value = year;
             document.getElementById("studentModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("studentModal").style.display = "none";
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm("Delete this student?")) return;
+            await fetch(`/admin/delete-student/${id}`, { method: "DELETE" });
+            loadStudents();
         }
 
         document.getElementById("studentForm").onsubmit = async (e) => {
@@ -84,11 +201,12 @@
             const id = formData.get("student_id");
             const url = id ? "/admin/update-student" : "/admin/add-student";
             await fetch(url, { method: "POST", body: formData });
-            document.getElementById("studentModal").style.display = "none";
+            closeModal();
             loadStudents();
         };
 
-        loadStudents();
+        // Initial load
+        loadStreams();
     </script>
 </body>
 </html>
