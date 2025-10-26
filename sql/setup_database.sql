@@ -59,66 +59,66 @@ CREATE TABLE classes (
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL
 );
 
+INSERT INTO classes (class_name, course_id) VALUES
 -- B.A.M.M.C.
-INSERT INTO classes (class_name) VALUES 
-('FYBMM'), ('SYBMM'), ('TYBMM'),
+('FYBMM', 1), ('SYBMM', 1), ('TYBMM', 1),
 
 -- B.Sc. in Information Technology
-('FYBSCIT'), ('SYBSCIT'), ('TYBSCIT'),
+('FYBSCIT', 3), ('SYBSCIT', 3), ('TYBSCIT', 3),
 
 -- B.Sc. in Computer Science
-('FYBSCCS'), ('SYBSCCS'), ('TYBSCCS'),
+('FYBSCCS', 2), ('SYBSCCS', 2), ('TYBSCCS', 2),
 
 -- B.Sc. in Packaging Technology
-('FYBSCPT'), ('SYBSCPT'), ('TYBSCPT'),
+('FYBSCPT', 4), ('SYBSCPT', 4), ('TYBSCPT', 4),
 
 -- B.Sc. in Environmental Science
-('FYBSCES'), ('SYBSCES'), ('TYBSCES'),
+('FYBSCES', 5), ('SYBSCES', 5), ('TYBSCES', 5),
 
 -- B.Sc. in Data Science
-('FYBSCDS'), ('SYBSCDS'), ('TYBSCDS'),
+('FYBSCDS', 6), ('SYBSCDS', 6), ('TYBSCDS', 6),
 
 -- B.Com. (Bachelor of Commerce)
-('FYBCOM'), ('SYBCOM'), ('TYBCOM'),
+('FYBCOM', 7), ('SYBCOM', 7), ('TYBCOM', 7),
 
 -- B.Com. (Accounting & Finance)
-('FYBAF'), ('SYBAF'), ('TYBAF'),
+('FYBAF', 8), ('SYBAF', 8), ('TYBAF', 8),
 
 -- B.Com. (Banking & Insurance)
-('FYBBI'), ('SYBBI'), ('TYBBI'),
+('FYBBI', 9), ('SYBBI', 9), ('TYBBI', 9),
 
 -- B.Com. (Financial Markets)
-('FYBFM'), ('SYBFM'), ('TYBFM'),
+('FYBFM', 10), ('SYBFM', 10), ('TYBFM', 10),
 
 -- B.M.S. (Bachelor of Management Studies)
-('FYBMS'), ('SYBMS'), ('TYBMS'),
+('FYBMS', 11), ('SYBMS', 11), ('TYBMS', 11),
 
 -- B.Com. (Management Accounting with Finance)
-('FYBMAF'), ('SYBMAF'), ('TYBMAF'),
+('FYBMAF', 12), ('SYBMAF', 12), ('TYBMAF', 12),
 
 -- B.Com. (Entrepreneurship)
-('FYBE'), ('SYBE'), ('TYBE'),
+('FYBE', 13), ('SYBE', 13), ('TYBE', 13),
 
 -- M.A. in Business Economics
-('PART1MABE'), ('PART2MABE'),
+('PART1MABE', 14), ('PART2MABE', 14),
 
 -- M.A. in Journalism and Mass Communication
-('PART1MAJMC'), ('PART2MAJMC'),
+('PART1MAJMC', 15), ('PART2MAJMC', 15),
 
 -- M.Sc. in Information Technology
-('PART1MSCIT'), ('PART2MSCIT'),
+('PART1MSCIT', 16), ('PART2MSCIT', 16),
 
 -- M.Sc. in Computer Science
-('PART1MSCCS'), ('PART2MSCCS'),
+('PART1MSCCS', 17), ('PART2MSCCS', 17),
 
 -- M.Sc. in Environmental Science
-('PART1MSCES'), ('PART2MSCES'),
+('PART1MSCES', 18), ('PART2MSCES', 18),
 
 -- M.Com. (Advanced Accountancy)
-('PART1MCOMAA'), ('PART2MCOMAA'),
+('PART1MCOMAA', 19), ('PART2MCOMAA', 19),
 
 -- M.Com. in Business Management
-('PART1MCOMBM'), ('PART2MCOMBM');
+('PART1MCOMBM', 20), ('PART2MCOMBM', 20);
 
 desc classes;
 select * from classes;
