@@ -150,7 +150,7 @@ desc class_subjects;
 select * from class_subjects;
 
 CREATE TABLE students (
-    student_id VARCHAR(20) PRIMARY KEY,
+    student_id int PRIMARY KEY auto_increment,
     name VARCHAR(100) NOT NULL,
     roll_no VARCHAR(10) UNIQUE NOT NULL,
     class_id INT,
