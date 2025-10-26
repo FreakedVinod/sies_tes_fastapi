@@ -128,6 +128,7 @@ CREATE TABLE subjects (
     subject_name VARCHAR(100) NOT NULL
 );
 
+-- You can switch it with your subject to see if it is working
 INSERT INTO subjects (subject_id, subject_name)
 VALUES (1, 'Artificial Intelligence'), (2, 'Artificial Intelligence Practical'), (3, 'Data Storage Techniques'), (4, 'Data Storage Techniques Practical'), (5, 'Cryptography in Ancient India'), (6, 'Information and Network Security'), (7, 'Information and Network Security Practical'), (8, 'Java Script and Allied Technologies - I'), (9, 'Java Script and Allied Technologies - I Practical'), (10,'Decision Making Techniques'), (11,'Decision Making Techniques Practical');
 
@@ -142,6 +143,7 @@ CREATE TABLE class_subjects (
     FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
 );
 
+--This has to be done manually in Database, but we have to make it dynamically for the admin.
 insert into class_subjects(class_id, subject_id) values (6,1),(6,2),(6,3),(6,4),(6,5),(6,6),(6,7),(6,8),(6,9),(6,10),(6,11);
 
 desc class_subjects;
@@ -174,7 +176,7 @@ select * from teachers;
 CREATE TABLE teacher_subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_id INT NOT NULL,
-    subject_id INT NOT NULL,
+    subject_id VARCHAR(255) NOT NULL,
     class_id INT NOT NULL,
     teaching_type ENUM('Theory', 'Practical') NOT NULL DEFAULT 'Theory',
     FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON DELETE CASCADE,
