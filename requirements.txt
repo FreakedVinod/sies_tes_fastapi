@@ -7,3 +7,4 @@ aiomysql
 bcrypt
 python-dotenv
 databases
+itsdangerous
