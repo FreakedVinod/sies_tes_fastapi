@@ -5,3 +5,4 @@ aiofiles
 python-multipart
 aiomysql
 bcrypt
+python-dotenv
