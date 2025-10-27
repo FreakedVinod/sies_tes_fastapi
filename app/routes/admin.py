@@ -1,236 +1,153 @@
-from fastapi import APIRouter, Form, Request, UploadFile
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi import APIRouter, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-import bcrypt
 from app.database import database
+import bcrypt
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-# -------------------------
-# Admin Registration
-# -------------------------
+
+# ---------------------------
+# Admin Registration Form Page
+# ---------------------------
+@router.get("/admin/register-form", response_class=HTMLResponse)
+async def admin_register_form(request: Request):
+    return templates.TemplateResponse("adminRegistration.html", {"request": request})
+
+
+# ---------------------------
+# Admin Registration POST
+# ---------------------------
 @router.post("/adminRegister")
-async def register_admin(
+async def admin_register(
     admin_name: str = Form(...),
     admin_email: str = Form(...),
     admin_password: str = Form(...)
 ):
     # Hash password
-    hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode()
 
-    # Insert into DB
+    # Insert admin into database
     query = """
-        INSERT INTO admins (admin_name, admin_password, admin_email)
-        VALUES (:admin_name, :admin_password, :admin_email)
+        INSERT INTO admins (admin_name, admin_email, admin_password)
+        VALUES (:admin_name, :admin_email, :admin_password)
     """
-    await database.execute(query=query, values={
+    values = {
         "admin_name": admin_name,
-        "admin_password": hashed_password,
-        "admin_email": admin_email
-    })
+        "admin_email": admin_email,
+        "admin_password": hashed_password
+    }
+    await database.execute(query=query, values=values)
 
-    # Redirect to admin login
+    # Redirect to login page
     return RedirectResponse(url="/admin/login-form", status_code=302)
 
 
-# -------------------------
-# Admin Login
-# -------------------------
+# ---------------------------
+# Admin Login Form Page
+# ---------------------------
+@router.get("/admin/login-form", response_class=HTMLResponse)
+async def admin_login_form(request: Request):
+    return templates.TemplateResponse("adminLogin.html", {"request": request})
+
+
+# ---------------------------
+# Admin Login POST
+# ---------------------------
 @router.post("/adminLogin")
-async def login_admin(request: Request, admin_name: str = Form(...), admin_password: str = Form(...)):
-    # Fetch admin by name (raw SQL)
-    query = "SELECT * FROM admins WHERE admin_name = :admin_name"
-    admin = await database.fetch_one(query, values={"admin_name": admin_name})
+async def admin_login(
+    request: Request,
+    admin_name: str = Form(...),
+    admin_password: str = Form(...)
+):
+    # Fetch admin by name
+    query = "SELECT * FROM admins WHERE admin_name = :name"
+    admin = await database.fetch_one(query=query, values={"name": admin_name})
 
-    # Verify credentials
-    if admin and bcrypt.checkpw(admin_password.encode('utf-8'), admin["admin_password"].encode('utf-8')):
-        request.session["admin_id"] = admin["admin_id"]
-        return RedirectResponse(url="/adminDashboard", status_code=302)
+    # Verify password
+    if not admin or not bcrypt.checkpw(admin_password.encode('utf-8'), admin["admin_password"].encode('utf-8')):
+        return templates.TemplateResponse(
+            "adminLogin.html",
+            {"request": request, "error": "Invalid name or password."},
+            status_code=401
+        )
 
-    # On error, reload login template with message
-    return templates.TemplateResponse("adminLogin.html", {
-        "request": request,
-        "error": "Incorrect name or password"
-    })
+    # Save admin_id to session
+    request.session["admin_id"] = admin["admin_id"]
 
-# -------------------------
+    return RedirectResponse(url="/admin/dashboard", status_code=302)
+
+
+# ---------------------------
+# Helper function to get logged-in admin
+# ---------------------------
+async def get_logged_in_admin(request: Request):
+    admin_id = request.session.get("admin_id")
+    if not admin_id:
+        return None
+    query = "SELECT * FROM admins WHERE admin_id = :admin_id"
+    return await database.fetch_one(query=query, values={"admin_id": admin_id})
+
+
+# ---------------------------
 # Admin Dashboard
-# -------------------------
-@router.get("/adminDashboard")
+# ---------------------------
+@router.get("/admin/dashboard", response_class=HTMLResponse)
 async def admin_dashboard(request: Request):
-    # Suppose you stored admin data in session after login
-    admin = request.session.get("admin")
+    admin = await get_logged_in_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login-form", status_code=302)
+
     return templates.TemplateResponse(
-        "adminDashboard.html", 
-        {"request": request, "admin": admin}
+        "adminDashboard.html",
+        {"request": request, "admin": admin, "active_page": "dashboard"}
     )
 
-# -------------------------
-# Admin Students
-# -------------------------
-@router.get("/manage-students")
+
+# ---------------------------
+# Manage Students Page
+# ---------------------------
+@router.get("/admin/manage-students", response_class=HTMLResponse)
 async def admin_students(request: Request):
-    return templates.TemplateResponse("adminStudents.html", {"request": request})
+    admin = await get_logged_in_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login-form", status_code=302)
 
-# 1. Streams
-@router.get("/admin/streams")
-async def get_streams(request: Request):
-    query = "SELECT stream_id, stream_name FROM streams"
-    rows = await request.database.fetch_all(query)
-    return [dict(r) for r in rows]
-
-# 2. Courses by Stream
-@router.get("/admin/courses/{stream_id}")
-async def get_courses(stream_id: int, request: Request):
-    query = "SELECT course_id, course_name FROM courses WHERE stream_id = :sid"
-    rows = await request.database.fetch_all(query, {"sid": stream_id})
-    return [dict(r) for r in rows]
-
-# 3. Classes by Course
-@router.get("/admin/classes/{course_id}")
-async def get_classes(course_id: int, request: Request):
-    query = "SELECT class_id, class_name FROM classes WHERE course_id = :cid"
-    rows = await request.database.fetch_all(query, {"cid": course_id})
-    return [dict(r) for r in rows]
-
-# 4. Students by Class
-@router.get("/admin/students/{class_id}")
-async def get_students(class_id: int, request: Request):
-    query = """
-        SELECT student_id, name, roll_no, class_id, admission_year, is_eligible
-        FROM students WHERE class_id = :cid
-    """
-    rows = await request.database.fetch_all(query, {"cid": class_id})
-    return [dict(r) for r in rows]
-
-# 5. Add Student
-@router.post("/admin/add-student")
-async def add_student(
-    request: Request,
-    name: str = Form(...),
-    roll_no: str = Form(...),
-    password: str = Form(...),
-    class_id: int = Form(...),
-    admission_year: int = Form(...)
-):
-    query = """
-        INSERT INTO students (student_id, name, roll_no, class_id, password, admission_year, is_eligible)
-        VALUES (:student_id, :name, :roll_no, :class_id, :password, :admission_year, 1)
-    """
-    # student_id can be generated as roll_no or UUID
-    student_id = roll_no  
-    values = {
-        "student_id": student_id,
-        "name": name,
-        "roll_no": roll_no,
-        "class_id": class_id,
-        "password": password,
-        "admission_year": admission_year
-    }
-    await request.database.execute(query, values)
-    return {"message": "Student added successfully"}
-
-# 6. Update Student
-@router.post("/admin/update-student")
-async def update_student(
-    request: Request,
-    student_id: str = Form(...),
-    name: str = Form(...),
-    roll_no: str = Form(...),
-    password: str = Form(None),
-    class_id: int = Form(...),
-    admission_year: int = Form(...)
-):
-    if password:  # update with password
-        query = """
-            UPDATE students SET name=:name, roll_no=:roll_no, class_id=:class_id,
-            password=:password, admission_year=:admission_year WHERE student_id=:sid
-        """
-        values = {
-            "sid": student_id,
-            "name": name,
-            "roll_no": roll_no,
-            "class_id": class_id,
-            "password": password,
-            "admission_year": admission_year
-        }
-    else:  # update without changing password
-        query = """
-            UPDATE students SET name=:name, roll_no=:roll_no, class_id=:class_id,
-            admission_year=:admission_year WHERE student_id=:sid
-        """
-        values = {
-            "sid": student_id,
-            "name": name,
-            "roll_no": roll_no,
-            "class_id": class_id,
-            "admission_year": admission_year
-        }
-    await request.database.execute(query, values)
-    return {"message": "Student updated successfully"}
-
-# 7. Delete Student
-@router.delete("/admin/delete-student/{student_id}")
-async def delete_student(student_id: str, request: Request):
-    query = "DELETE FROM students WHERE student_id = :sid"
-    await request.database.execute(query, {"sid": student_id})
-    return {"message": "Student deleted successfully"}
-
-# 8. Student Ratings (new tab view)
-@router.get("/admin/student-ratings/{student_id}", response_class=HTMLResponse)
-async def student_ratings(student_id: str, request: Request):
-    # Example: fetch feedback for student
-    query = """
-        SELECT q.question_text, r.rating
-        FROM feedback_responses r
-        JOIN feedback_questions q ON r.question_id = q.question_id
-        WHERE r.student_id = :sid
-    """
-    rows = await request.database.fetch_all(query, {"sid": student_id})
-    html = "<h2>Student Ratings</h2><table border='1'><tr><th>Question</th><th>Rating</th></tr>"
-    for r in rows:
-        html += f"<tr><td>{r['question_text']}</td><td>{r['rating']}</td></tr>"
-    html += "</table>"
-    return HTMLResponse(content=html)
-
-@router.get("/admin/student-ratings/{student_id}", response_class=HTMLResponse)
-async def student_ratings(request: Request, student_id: str):
-    query = """
-        SELECT q.question_text, r.rating
-        FROM feedback_responses r
-        JOIN feedback_questions q ON r.question_id = q.question_id
-        WHERE r.student_id = :sid
-    """
-    rows = await request.app.state.db.fetch_all(query, {"sid": student_id})
-    return templates.TemplateResponse("studentRatings.html", {
-        "request": request,
-        "ratings": rows,
-        "student_id": student_id
-    })
-
-@router.get("/student/{student_id}/ratings", response_class=HTMLResponse)
-async def student_ratings(request: Request, student_id: str):
-    query = """
-        SELECT q.question_text, r.rating
-        FROM feedback_responses r
-        JOIN questions q ON r.question_id = q.id
-        WHERE r.student_id = :student_id
-    """
-    rows = await database.fetch_all(query, values={"student_id": student_id})
-
-    ratings = [{"question_text": row["question_text"], "rating": row["rating"]} for row in rows]
+    # Fetch all students
+    query = "SELECT * FROM students"
+    students = await database.fetch_all(query)
 
     return templates.TemplateResponse(
-        "studentRatings.html",
-        {"request": request, "ratings": ratings}
+        "adminStudents.html",
+        {
+            "request": request,
+            "admin": admin,
+            "students": students,
+            "active_page": "students"
+        }
     )
 
 
-# -------------------------
+# ---------------------------
+# Manage Teachers Page
+# ---------------------------
+@router.get("/admin/manage-teachers", response_class=HTMLResponse)
+async def admin_teachers(request: Request):
+    admin = await get_logged_in_admin(request)
+    if not admin:
+        return RedirectResponse(url="/admin/login-form", status_code=302)
+
+    return templates.TemplateResponse(
+        "adminTeachers.html",
+        {"request": request, "admin": admin, "active_page": "teachers"}
+    )
+
+
+# ---------------------------
 # Admin Logout
-# -------------------------
-@router.get("/adminLogout")
-async def logout(request: Request):
-    request.session.pop("student_id", None)
-    return RedirectResponse(url="admin/login-form", status_code=302)
+# ---------------------------
+@router.get("/admin/logout")
+async def admin_logout(request: Request):
+    request.session.pop("admin_id", None)
+    return RedirectResponse(url="/admin/login-form", status_code=302)

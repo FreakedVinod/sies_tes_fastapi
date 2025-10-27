@@ -1,4 +1,4 @@
- // Auto-hide the alert after 3 seconds
+// Auto-hide the alert after 3 seconds
 const alertBox = document.getElementById("feedback-alert");
 if (alertBox) {
     setTimeout(() => {

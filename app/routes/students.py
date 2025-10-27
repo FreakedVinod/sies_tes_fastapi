@@ -8,46 +8,7 @@ import bcrypt
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-# Query 1: Calculates the average rating for each subject in the student's class (for the Left Card)
-SQL_CLASS_AVERAGES = """
-SELECT
-    s.subject_name,
-    CAST(AVG(f.rating) AS DECIMAL(10, 2)) AS average_rating,
-    COUNT(DISTINCT f.student_id) AS total_students_rated
-FROM
-    feedback f
-INNER JOIN
-    students st ON f.student_id = st.student_id
-INNER JOIN
-    teacher_subjects ts ON f.teacher_subject_id = ts.id
-INNER JOIN
-    subjects s ON ts.subject_id = s.subject_id
-WHERE
-    st.class_id = :class_id -- Placeholder for the student's class_id
-GROUP BY
-    s.subject_name
-ORDER BY
-    average_rating DESC;
-"""
 
-# Query 2: Retrieves the 5 most recent rating submissions/updates by the student (for the Right Card)
-SQL_STUDENT_ACTIVITY = """
-SELECT
-    s.subject_name,
-    f.rating,
-    f.updated_at AS feedback_time
-FROM
-    feedback f
-INNER JOIN
-    teacher_subjects ts ON f.teacher_subject_id = ts.id
-INNER JOIN
-    subjects s ON ts.subject_id = s.subject_id
-WHERE
-    f.student_id = :student_id -- Placeholder for the student's student_id
-ORDER BY
-    f.updated_at DESC
-LIMIT 5;
-"""
 
 # -------------------------
 # Student Registration
@@ -98,8 +59,50 @@ async def login_student(request: Request, roll_number: str = Form(...), password
 
 
 # -------------------------
-# Student Dashboard (Class-based subjects)
+# Student Dashboard
 # -------------------------
+
+# Query 1: Calculates the average rating for each subject in the student's class (for the Left Card)
+SQL_CLASS_AVERAGES = """
+SELECT
+    s.subject_name,
+    CAST(AVG(f.rating) AS DECIMAL(10, 2)) AS average_rating,
+    COUNT(DISTINCT f.student_id) AS total_students_rated
+FROM
+    feedback f
+INNER JOIN
+    students st ON f.student_id = st.student_id
+INNER JOIN
+    teacher_subjects ts ON f.teacher_subject_id = ts.id
+INNER JOIN
+    subjects s ON ts.subject_id = s.subject_id
+WHERE
+    st.class_id = :class_id -- Placeholder for the student's class_id
+GROUP BY
+    s.subject_name
+ORDER BY
+    average_rating DESC;
+"""
+
+# Query 2: Retrieves the 5 most recent rating submissions/updates by the student (for the Right Card)
+SQL_STUDENT_ACTIVITY = """
+SELECT
+    s.subject_name,
+    f.rating,
+    f.updated_at AS feedback_time
+FROM
+    feedback f
+INNER JOIN
+    teacher_subjects ts ON f.teacher_subject_id = ts.id
+INNER JOIN
+    subjects s ON ts.subject_id = s.subject_id
+WHERE
+    f.student_id = :student_id -- Placeholder for the student's student_id
+ORDER BY
+    f.updated_at DESC
+LIMIT 5;
+"""
+
 @router.get("/studentDashboard", response_class=HTMLResponse)
 async def show_dashboard(request: Request):
     student_id = request.session.get("student_id")

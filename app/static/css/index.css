@@ -1,9 +1,11 @@
-/* Full-page background */
+/* ================================
+   Full-page background
+================================ */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    background: linear-gradient(to right, #6aa3ff, #9038e7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,66 +13,130 @@ body {
     flex-direction: column;
 }
 
-/* Cards container */
+/* ================================
+   Header banner
+================================ */
+.header-banner {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.header-banner h1 {
+    font-size: 42px;
+    color: #fff;
+    text-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    letter-spacing: 1px;
+}
+
+/* ================================
+   Cards container
+================================ */
 .cards-container {
     display: flex;
-    flex-direction: row; /* Changed to 'row' to put cards side-by-side */
-    justify-content: center; /* Center the cards horizontally */
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    gap: 40px; /* Added a gap between the cards */
+    gap: 50px;
+    flex-wrap: wrap;
 }
 
-/* Subtle page title */
-.page-title {
-    font-size: 2rem;
-    color: #6a5acd; /* primary color */
-    margin: 0;
-    font-weight: 700;
-    text-align: center;
-    position: relative;
-}
-
-/* Optional underline accent */
-.page-title::after {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 4px;
-    background-color: #fbbf24; /* dashboard star color */
-    margin: 8px auto 0 auto;
-    border-radius: 2px;
-}
-
-/* Individual card */
+/* ================================
+   Card styling
+================================ */
 .card {
     background-color: #fff;
-    padding: 25px;
-    border-radius: 12px;
-    width: 220px;
+    padding: 30px 25px;
+    border-radius: 14px;
+    width: 240px;
     text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
 }
 
-/* Card text */
+/* ================================
+   Card images and text
+================================ */
+.card img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 18px;
+}
+
 .card p {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 600;
     color: #333;
 }
 
-/* Card images */
-.card img {
-    width: 130px;
-    height: 130px;
-    object-fit: contain;
-    margin-bottom: 15px;
+/* ================================
+   Responsive design
+================================ */
+@media (max-width: 768px) {
+    .header-banner h1 {
+        font-size: 38px;
+        margin-bottom: 35px;
+    }
+
+    .cards-container {
+        gap: 35px;
+    }
+
+    .card {
+        width: 220px;
+        padding: 28px 22px;
+    }
+
+    .card img {
+        width: 125px;
+        height: 125px;
+    }
+
+    .card p {
+        font-size: 1.05rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .header-banner {
+        margin-bottom: 40px;
+    }
+
+    .header-banner h1 {
+        font-size: 34px;
+    }
+
+    .cards-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .card {
+        width: 85%;
+        max-width: 320px;
+        padding: 35px 28px;
+    }
+
+    .card img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .card p {
+        font-size: 1.1rem;
+    }
 }

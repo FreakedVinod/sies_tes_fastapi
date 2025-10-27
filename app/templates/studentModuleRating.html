@@ -10,16 +10,19 @@
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
     <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
+    <!-- Toggle button -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="nav-links">
             <div class="logo-container">
                 <img src="{{ url_for('static', path='sies_logo.png') }}" class="logo" alt="Logo">
                 <p class="college-name text-center">SIES COLLEGE OF ARTS, SCIENCE, & COMMERCE</p>
             </div>
             <h2 class="welcome text-center mb-6">Welcome {{ student.name }}</h2>
 
-            <a href="/studentDashboard"><button class="nav-link-btn">Dashboard</button></a>
-            <a href="/module-rating"><button class="nav-link-btn active">Module Rating</button></a>
+            <a href="/studentDashboard"><button class="nav-link-btn active">Dashboard</button></a>
+            <a href="/module-rating"><button class="nav-link-btn">Module Rating</button></a>
             <a href="/resources"><button class="nav-link-btn">Resources</button></a>
             <a href="/logout"><button class="nav-link-btn logout-btn mt-auto">Logout</button></a>
 
@@ -31,6 +34,10 @@
                 </p>
             </div>
         </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay"></div>
 
         <!-- Main Content -->
         <div class="main-content flex-1 p-6">
@@ -84,5 +91,32 @@
     </div>
 
     <script src="{{ url_for('static', path='js/studentModuleRating.js') }}"></script>
+
+        <script>
+    // Toggle sidebar on button click
+    function toggleMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        if (!sidebar || !overlay) return;
+
+        sidebar.classList.toggle('active');   // slide sidebar in/out
+        overlay.classList.toggle('active');   // show/hide overlay
+    }
+
+    // Close sidebar when clicking overlay
+    document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.querySelector('.sidebar-overlay');
+        const sidebar = document.querySelector('.sidebar');
+
+        if (!overlay || !sidebar) return;
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');    // hide sidebar
+            overlay.classList.remove('active');    // hide overlay
+        });
+    });
+</script>
+
 </body>
 </html>

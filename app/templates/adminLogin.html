@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Login</title>
+    <title>Admin Login</title>
     <link rel="stylesheet" href="/static/css/adminLogin.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
             <input type="text" id="admin_name" name="admin_name" required>
 
             <label for="admin_password">Password:</label>
-            <input type="admin_password" id="admin_password" name="admin_password" required>
+            <input type="password" id="admin_password" name="admin_password" required>
 
             <button type="submit">Login</button>
         </form>
@@ -21,9 +21,10 @@
             <a href="/admin/register-form">Came here first time? Visit here to register</a>
         </div>
     </div>
+
     {% if error %}
     <script>
-        alert("{{ error }}")
+        alert("{{ error }}");
     </script>
     {% endif %}
 </body>
