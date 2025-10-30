@@ -57,8 +57,9 @@ SIES-TES is designed to collect student feedback on teachers and modules. The sy
 2. Create and activate a virtual environment:
 
 python -m venv venv
-source venv/bin/activate   # Linux/macOS
+
 venv\Scripts\activate      # Windows
+source venv/bin/activate   # Linux/macOS
 
 3. Install dependencies:
 
