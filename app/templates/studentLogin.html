@@ -17,10 +17,16 @@
 
             <button type="submit">Login</button>
         </form>
-        <div class="register-link">
-            <a href="/student/register-form">New here? Register as a Student</a>
+        <div class="auth-links">
+            <div class="register-link">
+                <a href="/student/register-form">New Here? Come here to register !!</a>
+            </div>
+            <span class="divider">|</span>
+            <div class="forgot-your-password">
+                <a href="/student/forgot-password">Forgot Password?</a>
+            </div>
         </div>
-    </div>
+
     {% if error %}
     <script>
         alert("{{ error }}")

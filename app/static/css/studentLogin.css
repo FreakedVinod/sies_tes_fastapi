@@ -91,13 +91,24 @@ button:hover {
 }
 
 /* ================================
-   Register Link
+   Auth Links (Register + Forgot Password)
 ================================ */
-.register-link {
-    margin-top: 22px;
+.auth-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    text-align: center;
 }
 
-.register-link a {
+.auth-links .divider {
+    color: #888;
+    font-weight: 400;
+}
+
+/* Optional: make links look consistent */
+.auth-links a {
     text-decoration: none;
     font-size: 15px;
     color: #3e1a68;
@@ -105,9 +116,11 @@ button:hover {
     transition: 0.3s ease;
 }
 
-.register-link a:hover {
+.auth-links a:hover {
     color: #000;
 }
+
+
 
 /* ================================
    Animation

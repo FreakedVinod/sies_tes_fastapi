@@ -106,45 +106,6 @@ async def admin_dashboard(request: Request):
 
 
 # ---------------------------
-# Manage Students Page
-# ---------------------------
-@router.get("/admin/manage-students", response_class=HTMLResponse)
-async def admin_students(request: Request):
-    admin = await get_logged_in_admin(request)
-    if not admin:
-        return RedirectResponse(url="/admin/login-form", status_code=302)
-
-    # Fetch all students
-    query = "SELECT * FROM students"
-    students = await database.fetch_all(query)
-
-    return templates.TemplateResponse(
-        "adminStudents.html",
-        {
-            "request": request,
-            "admin": admin,
-            "students": students,
-            "active_page": "students"
-        }
-    )
-
-
-# ---------------------------
-# Manage Teachers Page
-# ---------------------------
-@router.get("/admin/manage-teachers", response_class=HTMLResponse)
-async def admin_teachers(request: Request):
-    admin = await get_logged_in_admin(request)
-    if not admin:
-        return RedirectResponse(url="/admin/login-form", status_code=302)
-
-    return templates.TemplateResponse(
-        "adminTeachers.html",
-        {"request": request, "admin": admin, "active_page": "teachers"}
-    )
-
-
-# ---------------------------
 # Admin Logout
 # ---------------------------
 @router.get("/admin/logout")

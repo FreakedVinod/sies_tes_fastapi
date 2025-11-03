@@ -1,13 +1,25 @@
+import secrets
+import smtplib
+import os
+
+
+from email.mime.text import MIMEText
+from datetime import datetime, timedelta
+from fastapi import APIRouter, Form, Request
 from fastapi import APIRouter, Form, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 from app.database import database
 from app.models import students
-import bcrypt
+from app.models import classes
+from dotenv import load_dotenv
+from passlib.hash import bcrypt
+
+
+load_dotenv()
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
-
 
 
 # -------------------------
@@ -18,20 +30,22 @@ async def register_student(
     name: str = Form(...),
     roll_number: str = Form(...),
     password: str = Form(...),
+    email: str = Form(...),
     admission_year: int = Form(...),
     class_id: int = Form(...),
     course_id: int = Form(...)
 ):
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    hashed_password = bcrypt.hash(password)
 
     query = """
-        INSERT INTO students (name, roll_no, password, admission_year, class_id, course_id)
-        VALUES (:name, :roll_no, :password, :admission_year, :class_id, :course_id)
+        INSERT INTO students (name, roll_no, password, email, admission_year, class_id, course_id)
+        VALUES (:name, :roll_no, :password, :email, :admission_year, :class_id, :course_id)
     """
     await database.execute(query=query, values={
         "name": name,
         "roll_no": roll_number,
         "password": hashed_password,
+        "email": email,
         "admission_year": admission_year,
         "class_id": class_id,
         "course_id": course_id
@@ -47,16 +61,159 @@ async def register_student(
 async def login_student(request: Request, roll_number: str = Form(...), password: str = Form(...)):
     query = students.select().where(students.c.roll_no == roll_number)
     student = await database.fetch_one(query)
+
+    if student:
+        # Check password first
+        if bcrypt.verify(password, student["password"]):
+            # Check eligibility
+            if student["is_eligible"] == 1:
+                request.session["student_id"] = student["student_id"]
+                return RedirectResponse(url="/studentDashboard", status_code=302)
+            else:
+                # Not eligible to login
+                return templates.TemplateResponse("studentLogin.html", {
+                    "request": request,
+                    "error": "You are not eligible for the feedback rating. Contact your administrator."
+                })
     
-    if student and bcrypt.checkpw(password.encode('utf-8'), student["password"].encode('utf-8')):
-        request.session["student_id"] = student["student_id"]
-        return RedirectResponse(url="/studentDashboard", status_code=302)
-    
+    # Incorrect credentials
     return templates.TemplateResponse("studentLogin.html", {
         "request": request,
         "error": "Incorrect roll number or password"
     })
 
+# -------------------------
+# STEP 1: Forgot Password Page (Form)
+# -------------------------
+@router.get("/student/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    return templates.TemplateResponse(
+        "studentResetPassword.html", {"request": request, "token": None}
+    )
+
+
+# -------------------------
+# STEP 2: Handle Forgot Password (Send Email)
+# -------------------------
+@router.post("/student/forgot-password")
+async def forgot_password_submit(request: Request, email: str = Form(...)):
+    # Check if student email exists
+    query = "SELECT student_id FROM students WHERE email = :email"
+    student = await database.fetch_one(query, {"email": email})
+
+    if not student:
+        return templates.TemplateResponse(
+            "studentResetPassword.html",
+            {
+                "request": request,
+                "token": None,
+                "error": "No account found with that email.",
+            },
+        )
+
+    # Generate unique token and expiry (30 mins)
+    token = secrets.token_urlsafe(32)
+    expiry_time = datetime.utcnow() + timedelta(minutes=30)
+
+    # Save token to database
+    await database.execute(
+        """
+        INSERT INTO password_resets (student_id, token, expiry_time)
+        VALUES (:student_id, :token, :expiry_time)
+        """,
+        {
+            "student_id": student["student_id"],
+            "token": token,
+            "expiry_time": expiry_time,
+        },
+    )
+
+    # Create reset link
+    reset_link = f"http://127.0.0.1:8000/student/reset-password?token={token}"
+
+    # Send Email
+    sender = os.getenv("EMAIL_USER")
+    password = os.getenv("EMAIL_PASSWORD")
+
+    msg = MIMEText(
+        f"Click the link below to reset your password:\n\n{reset_link}\n\nThis link expires in 30 minutes."
+    )
+    msg["Subject"] = "Reset Your Password - SIES TES"
+    msg["From"] = sender
+    msg["To"] = email
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(sender, password)
+            smtp.send_message(msg)
+    except Exception as e:
+        print("Error sending email:", e)
+        return templates.TemplateResponse(
+            "studentResetPassword.html",
+            {
+                "request": request,
+                "token": None,
+                "error": "Failed to send reset email. Please try again later.",
+            },
+        )
+
+    return templates.TemplateResponse(
+        "studentResetPassword.html",
+        {
+            "request": request,
+            "token": None,
+            "success": "Password reset link has been sent to your email.",
+        },
+    )
+
+
+# -------------------------
+# STEP 3: Reset Password Page (via Email Link)
+# -------------------------
+@router.get("/student/reset-password", response_class=HTMLResponse)
+async def reset_password_page(request: Request, token: str | None = None):
+    return templates.TemplateResponse(
+        "studentResetPassword.html", {"request": request, "token": token}
+    )
+
+
+# -------------------------
+# STEP 4: Handle Password Update
+# -------------------------
+@router.post("/student/reset-password")
+async def reset_password_submit(
+    request: Request, token: str = Form(...), new_password: str = Form(...)
+):
+    # Fetch the token record from the correct table
+    query = "SELECT * FROM password_resets WHERE token = :token"
+    token_entry = await database.fetch_one(query, {"token": token})
+
+    print("DEBUG - Token:", token)
+    print("DEBUG - Token entry:", token_entry)
+
+    # Validate token existence and expiry
+    if not token_entry:
+        raise HTTPException(status_code=400, detail="Invalid or expired token.")
+
+    if datetime.utcnow() > token_entry["expiry_time"]:
+        raise HTTPException(status_code=400, detail="Invalid or expired token.")
+
+    # Get the student ID
+    student_id = token_entry["student_id"]
+
+    # Hash the new password
+    hashed_pw = bcrypt.hash(new_password)
+
+    # Update the student's password in the students table
+    update_query = "UPDATE students SET password = :password WHERE student_id = :student_id"
+    await database.execute(update_query, {"password": hashed_pw, "student_id": student_id})
+
+    # Delete the used token (to prevent reuse)
+    delete_query = "DELETE FROM password_resets WHERE token = :token"
+    await database.execute(delete_query, {"token": token})
+
+    # Redirect to login after success
+    return RedirectResponse(url="/student/login-form", status_code=303)
 
 # -------------------------
 # Student Dashboard
@@ -156,6 +313,7 @@ async def show_dashboard(request: Request):
     return templates.TemplateResponse("studentDashboard.html", {
         "request": request,
         "student": student,
+        "classes":classes,
         "subjects": modules,              # Original data (can be removed if not used)
         "class_ratings": class_ratings,   # Data for the Overall Averages card
         "student_activity": student_activity  # Data for the Recent Activity card

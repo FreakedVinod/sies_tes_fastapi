@@ -152,6 +152,7 @@ select * from class_subjects;
 CREATE TABLE students (
     student_id int PRIMARY KEY auto_increment,
     name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     roll_no VARCHAR(10) UNIQUE NOT NULL,
     class_id INT,
     password VARCHAR(255) NOT NULL,
@@ -231,5 +232,16 @@ create table admins (
 );
 desc admins;
 select * from admins;
+
+CREATE TABLE password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expiry_time DATETIME NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+);
+
+desc password_resets;
+select * from password_resets;
 
 show tables;
