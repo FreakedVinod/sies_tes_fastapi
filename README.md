@@ -58,7 +58,7 @@ SIES-TES is designed to collect student feedback on teachers and modules. The sy
 
 python -m venv venv
 
-& C:/python/sies_tes_project/venv/Scripts/Activate.ps1     # Windows
+& {Your Path where the file is stored}/venv/Scripts/Activate.ps1     # Windows
 source venv/bin/activate   # Linux/macOS
 
 3. Install dependencies:
