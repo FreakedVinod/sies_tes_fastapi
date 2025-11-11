@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Students - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/adminDashboard.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="sidebar fixed lg:static z-40">
+        <div class="logo-container mb-4">
+            <img src="{{ url_for('static', path='sies_logo.png') }}" alt="SIES Logo" class="logo mx-auto mb-2" style="max-width: 80px;">
+            <p class="college-name text-center text-xs leading-tight">
+                SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE
+            </p>
+        </div>
+
+        <h2 class="welcome text-center mb-4 text-sm font-semibold">Welcome {{ admin.admin_name }}</h2>
+
+        <nav class="sidebar-nav flex flex-col space-y-2 text-sm">
+            <a href="/admin/dashboard"><button class="nav-link-btn">Dashboard</button></a>
+            <a href="/admin/manage-students"><button class="nav-link-btn active">Manage Students</button></a>
+            <a href="/admin/manage-teachers"><button class="nav-link-btn">Manage Teachers</button></a>
+            <a href="/admin/manage-announcements"><button class="nav-link-btn">Manage Announcements</button></a>
+            <a href="/admin/manage-questions"><button class="nav-link-btn">Manage Questions</button></a>
+            <a href="/admin/manage-feedback"><button class="nav-link-btn">Feedback Reports</button></a>
+            <a href="/admin/logout"><button class="nav-link-btn logout-btn mt-6">Logout</button></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 sm:p-10 fade-in">
+        <h1 class="text-2xl font-bold text-indigo-700 mb-4">Manage Students</h1>
+
+        <!-- Filter + Action Section -->
+        <div class="bg-white p-4 rounded-xl shadow mb-6">
+            <form method="get" action="/admin/manage-students" class="flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- Left: Add + Reindex -->
+                <div class="flex gap-3">
+                    <a href="/admin/add-student-form" 
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow text-sm font-medium">
+                        + Add New Student
+                    </a>
+                    <a href="/admin/reindex-students"
+                       onclick="return confirm('⚠️ Are you sure you want to reindex all student IDs? This may affect linked feedback records.')"
+                       class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow text-sm font-medium">
+                        🔄 Reindex IDs
+                    </a>
+                </div>
+
+                <!-- Right: Filters -->
+                <div class="flex flex-wrap gap-3 items-center">
+                    <select name="class_id" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">All Classes</option>
+                        {% for c in classes %}
+                            <option value="{{ c.class_id }}" {% if selected_class == c.class_id %}selected{% endif %}>
+                                {{ c.class_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="eligibility" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">All Students</option>
+                        <option value="1" {% if selected_eligibility == "1" %}selected{% endif %}>Eligible</option>
+                        <option value="0" {% if selected_eligibility == "0" %}selected{% endif %}>Not Eligible</option>
+                    </select>
+
+                    <!-- Optional Search -->
+                    <input type="text" name="search" value="{{ search or '' }}" placeholder="Search by name or roll number"
+                           class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-48">
+
+                    <button type="submit"
+                        class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow">
+                        Filter
+                    </button>
+
+                    <a href="/admin/manage-students" 
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Students Table -->
+        <div class="bg-white p-4 rounded-xl shadow overflow-x-auto">
+            <table class="min-w-full text-sm text-left border-collapse">
+                <thead class="bg-indigo-100 text-indigo-800">
+                    <tr>
+                        <th class="px-4 py-2 border-b">Student ID</th>
+                        <th class="px-4 py-2 border-b">Name</th>
+                        <th class="px-4 py-2 border-b">Roll No</th>
+                        <th class="px-4 py-2 border-b">Class</th>
+                        <th class="px-4 py-2 border-b">Admission Year</th>
+                        <th class="px-4 py-2 border-b">Course</th>
+                        <th class="px-4 py-2 border-b">Eligible</th>
+                        <th class="px-4 py-2 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-2 border-b">{{ student.student_id }}</td>
+                        <td class="px-4 py-2 border-b">{{ student.name }}</td>
+                        <td class="px-4 py-2 border-b">{{ student.roll_no }}</td>
+                        <td class="px-4 py-2 border-b">{{ student.class_id }}</td>
+                        <td class="px-4 py-2 border-b">{{ student.admission_year }}</td>
+                        <td class="px-4 py-2 border-b">{{ student.course_id }}</td>
+                        <td class="px-4 py-2 border-b">
+                            {% if student.is_eligible == 1 %}
+                                <span class="text-green-600 font-semibold">✔ Eligible</span>
+                            {% else %}
+                                <span class="text-red-500 font-semibold">✖ Not Eligible</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 border-b space-x-2">
+                            <a href="/admin/edit-student/{{ student.student_id }}" 
+                               class="text-indigo-600 hover:text-indigo-800 font-semibold">Edit</a>
+                            |
+                            <a href="/admin/delete-student/{{ student.student_id }}" 
+                               class="text-red-600 hover:text-red-800 font-semibold" 
+                               onclick="return confirmDelete('{{ student.name }}');">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div class="flex justify-between items-center mt-6 px-2">
+                <p class="text-sm text-gray-500">
+                    Showing 
+                    <span class="font-semibold text-gray-700">
+                        {{ (page - 1) * 10 + 1 if total_students > 0 else 0 }}
+                    </span>
+                    –
+                    <span class="font-semibold text-gray-700">
+                        {{ (page - 1) * 10 + students|length }}
+                    </span>
+                    of 
+                    <span class="font-semibold text-gray-700">{{ total_students }}</span>
+                    students
+                </p>
+
+                <div class="flex space-x-2">
+                    {% if page > 1 %}
+                    <a href="?page={{ page - 1 }}{% if selected_class %}&class_id={{ selected_class }}{% endif %}{% if selected_eligibility %}&eligibility={{ selected_eligibility }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg shadow text-sm">
+                        ← Previous
+                    </a>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                        <a href="?page={{ p }}{% if selected_class %}&class_id={{ selected_class }}{% endif %}{% if selected_eligibility %}&eligibility={{ selected_eligibility }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+                           class="px-3 py-1 rounded-lg text-sm font-medium shadow
+                                  {% if p == page %} bg-indigo-600 text-white {% else %} bg-gray-100 hover:bg-gray-200 text-gray-700 {% endif %}">
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <a href="?page={{ page + 1 }}{% if selected_class %}&class_id={{ selected_class }}{% endif %}{% if selected_eligibility %}&eligibility={{ selected_eligibility }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg shadow text-sm">
+                        Next →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+function confirmDelete(name) {
+    return confirm(`Are you sure you want to delete the student "${name}"?\nThis action cannot be undone.`);
+}
+
+// Optional smooth scroll after pagination
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.search.includes("page=")) {
+    window.scrollTo({ top: 200, behavior: "smooth" });
+  }
+});
+</script>
+
+</body>
+</html>

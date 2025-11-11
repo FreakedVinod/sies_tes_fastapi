@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Student - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/adminDashboard.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Sidebar (same as Dashboard) -->
+    <aside class="sidebar fixed lg:static z-40">
+        <div class="logo-container mb-4">
+            <img src="{{ url_for('static', path='sies_logo.png') }}" alt="SIES Logo" class="logo mx-auto mb-2" style="max-width: 80px;">
+            <p class="college-name text-center text-xs leading-tight">SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE</p>
+        </div>
+
+        <h2 class="welcome text-center mb-4 text-sm font-semibold">Welcome {{ admin.admin_name }}</h2>
+
+        <nav class="sidebar-nav flex flex-col space-y-2 text-sm">
+            <a href="/admin/dashboard"><button class="nav-link-btn">Dashboard</button></a>
+            <a href="/admin/manage-students"><button class="nav-link-btn active">Manage Students</button></a>
+            <a href="/admin/manage-teachers"><button class="nav-link-btn">Manage Teachers</button></a>
+            <a href="/admin/manage-announcements"><button class="nav-link-btn">Manage Announcements</button></a>
+            <a href="/admin/manage-questions"><button class="nav-link-btn">Manage Questions</button></a>
+            <a href="/admin/manage-feedback"><button class="nav-link-btn">Feedback Reports</button></a>
+            <a href="/admin/logout"><button class="nav-link-btn logout-btn mt-6">Logout</button></a>
+        </nav>
+    </aside>
+
+    <!-- Main Form -->
+    <main class="flex-1 p-6 sm:p-10">
+        <div class="form-wrapper fade-in">
+            <h1>Add New Student</h1>
+
+            <form method="POST" action="/admin/add-student">
+                <div class="form-row full">
+                    <div>
+                        <label>Full Name</label>
+                        <input type="text" name="name" placeholder="Enter full name" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Roll Number</label>
+                        <input type="text" name="roll_number" placeholder="E.g. T.23.01" required>
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="Enter email" required>
+                    </div>
+                    <div>
+                        <label>Admission Year</label>
+                        <input type="number" name="admission_year" min="2023" max="2030" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Stream</label>
+                        <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
+                            <option value="">-- Select Stream --</option>
+                            <option value="1">Arts</option>
+                            <option value="2">Science</option>
+                            <option value="3">Commerce</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Course</label>
+                        <select id="course" name="course_id" onchange="loadClasses(this.value)" required>
+                            <option value="">-- Select Course --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div>
+                        <label>Class</label>
+                        <select id="class" name="class_id" required>
+                            <option value="">-- Select Class --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Add Student</button>
+
+                <div class="back-link">
+                    <a href="/admin/manage-students">← Back to Manage Students</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+
+<script>
+async function loadCourses(streamId) {
+    const courseSelect = document.getElementById('course');
+    const classSelect = document.getElementById('class');
+    courseSelect.innerHTML = '<option value="">Loading...</option>';
+    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+    if (!streamId) return;
+
+    const res = await fetch(`/get-courses/${streamId}`);
+    const data = await res.json();
+    courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+    data.courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        courseSelect.appendChild(opt);
+    });
+}
+
+async function loadClasses(courseId) {
+    const classSelect = document.getElementById('class');
+    classSelect.innerHTML = '<option value="">Loading...</option>';
+    if (!courseId) return;
+
+    const res = await fetch(`/get-classes/${courseId}`);
+    const data = await res.json();
+    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+    data.classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls.id;
+        opt.textContent = cls.name;
+        classSelect.appendChild(opt);
+    });
+}
+</script>
+
+</body>
+</html>

@@ -5,18 +5,26 @@
     <title>Student Login</title>
     <link rel="stylesheet" href="/static/css/studentLogin.css">
 </head>
+
 <body>
     <div class="container">
         <h2>Student Login</h2>
+
         <form method="POST" action="/studentLogin">
             <label for="roll">Roll Number:</label>
-            <input type="text" id="roll" name="roll_number" required>
+            {% if error %}
+                <div id="error-message" class="error-message">{{ error }}</div>
+            {% endif %}
+            <input type="text" id="roll" name="roll_number" required
+                class="{% if error %}error-input shake{% endif %}">
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" required
+                class="{% if error %}error-input shake{% endif %}">
 
             <button type="submit">Login</button>
         </form>
+
         <div class="auth-links">
             <div class="register-link">
                 <a href="/student/register-form">New Here? Come here to register !!</a>
@@ -26,11 +34,28 @@
                 <a href="/student/forgot-password">Forgot Password?</a>
             </div>
         </div>
+    </div>
 
-    {% if error %}
     <script>
-        alert("{{ error }}")
+        // Get references
+        const rollInput = document.getElementById("roll");
+        const passwordInput = document.getElementById("password");
+        const errorMessage = document.getElementById("error-message");
+
+        // Function to clear error
+        function clearError() {
+            if (errorMessage) {
+                errorMessage.style.display = "none";
+            }
+            rollInput.classList.remove("error-input", "shake");
+            passwordInput.classList.remove("error-input", "shake");
+        }
+
+        // Add event listeners to both inputs
+        if (rollInput && passwordInput) {
+            rollInput.addEventListener("input", clearError);
+            passwordInput.addEventListener("input", clearError);
+        }
     </script>
-    {% endif %}
 </body>
 </html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Students - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/adminDashboard.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+    <!-- Toggle Button (mobile) -->
+    <button class="menu-toggle fixed top-4 left-4 z-50 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-md lg:hidden transition">
+        ☰
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar fixed lg:static z-40">
+        <div class="logo-container mb-4">
+            <img src="{{ url_for('static', path='sies_logo.png') }}" alt="SIES Logo" class="logo mx-auto mb-2" style="max-width: 80px;">
+            <p class="college-name text-center text-xs leading-tight">SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE</p>
+        </div>
+
+        <h2 class="welcome text-center mb-4 text-sm font-semibold">Welcome {{ admin.admin_name }}</h2>
+
+        <nav class="sidebar-nav flex flex-col space-y-2 text-sm">
+            <a href="/admin/dashboard"><button class="nav-link-btn">Dashboard</button></a>
+            <a href="/admin/manage-students"><button class="nav-link-btn">Manage Students</button></a>
+            <a href="/admin/manage-teachers"><button class="nav-link-btn active">Manage Teachers</button></a>
+            <a href="/admin/manage-announcements"><button class="nav-link-btn">Manage Announcements</button></a>
+            <a href="/admin/manage-questions"><button class="nav-link-btn">Manage Questions</button></a>
+            <a href="/admin/manage-feedback"><button class="nav-link-btn">Feedback Reports</button></a>
+            <a href="/admin/logout"><button class="nav-link-btn logout-btn mt-6">Logout</button></a>
+        </nav>
+    </aside>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-40 z-30 hidden lg:hidden"></div>
+    <main class="flex-1 p-6 sm:p-10 fade-in">
+        <h2 class="welcome">Manage Teachers</h2>
+
+        <button onclick="openModal('addModal')">Add New Teacher</button>
+
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Teacher ID</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.teacher_id }}</td>
+                    <td>{{ teacher.name }}</td>
+                    <td>
+                        <a href="javascript:void(0)" onclick="openUpdateModal('{{ teacher.teacher_id }}', '{{ teacher.name }}')">Edit</a> |
+                        <a href="javascript:void(0)" onclick="deleteTeacher('{{ teacher.teacher_id }}')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Teacher</h3>
+            <form id="addForm">
+                <label>Name:</label>
+                <input type="text" name="name" required>
+                <div class="modal-actions">
+                    <button type="submit">Add</button>
+                    <button type="button" onclick="closeModal('addModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h3>Update Teacher</h3>
+            <form id="updateForm">
+                <input type="hidden" name="teacher_id" id="update_teacher_id">
+                <label>Name:</label>
+                <input type="text" name="name" id="update_name" required>
+                <div class="modal-actions">
+                    <button type="submit">Update</button>
+                    <button type="button" onclick="closeModal('updateModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -25,6 +25,11 @@ templates = Jinja2Templates(directory="app/templates")
 # -------------------------
 # Student Registration
 # -------------------------
+
+@router.get("/student/register-form")
+def student_register_form(request: Request):
+    return templates.TemplateResponse("studentRegistration.html", {"request": request})
+
 @router.post("/studentRegister")
 async def register_student(
     name: str = Form(...),
@@ -57,6 +62,11 @@ async def register_student(
 # -------------------------
 # Student Login
 # -------------------------
+
+@router.get("/student/login-form")
+def student_login_form(request: Request):
+    return templates.TemplateResponse("studentLogin.html", {"request": request})
+
 @router.post("/studentLogin")
 async def login_student(request: Request, roll_number: str = Form(...), password: str = Form(...)):
     query = students.select().where(students.c.roll_no == roll_number)
@@ -264,7 +274,7 @@ LIMIT 5;
 async def show_dashboard(request: Request):
     student_id = request.session.get("student_id")
     if not student_id:
-        return RedirectResponse(url="/login", status_code=302)
+        return RedirectResponse(url="/student/login-form", status_code=302)
 
     # 1. Fetch student info including class_id
     student_query = "SELECT * FROM students WHERE student_id = :student_id"
@@ -328,7 +338,7 @@ async def show_dashboard(request: Request):
 async def module_rating(request: Request):
     student_id = request.session.get("student_id")
     if not student_id:
-        return RedirectResponse(url="/login", status_code=302)
+        return RedirectResponse(url="/student/login-form", status_code=302)
 
     # Fetch student info including class_id
     student_query = "SELECT * FROM students WHERE student_id = :student_id"
@@ -372,13 +382,13 @@ async def module_rating(request: Request):
     })
 
 # -------------------------
-# Rate Subject Page
+# Rate Subject Page (Fixed with Display Numbers)
 # -------------------------
 @router.get("/rate/{teacher_subject_id}", response_class=HTMLResponse)
 async def rate_subject(request: Request, teacher_subject_id: int):
     student_id = request.session.get("student_id")
     if not student_id:
-        return RedirectResponse(url="/login", status_code=302)
+        return RedirectResponse(url="/student/login-form", status_code=302)
 
     # Fetch student info
     student = await database.fetch_one(
@@ -399,8 +409,20 @@ async def rate_subject(request: Request, teacher_subject_id: int):
     if not valid:
         raise HTTPException(status_code=403, detail="You cannot rate this subject")
 
-    # Fetch questions
-    questions = await database.fetch_all("SELECT * FROM questions ORDER BY question_id ASC")
+    # ✅ Fetch all questions for this class (5 per class)
+    questions = await database.fetch_all(
+        "SELECT question_id, question_text FROM questions WHERE class_id = :class_id ORDER BY question_id ASC",
+        {"class_id": class_id}
+    )
+
+    # ✅ Add display numbers (1–5) manually
+    numbered_questions = []
+    for i, q in enumerate(questions, start=1):
+        numbered_questions.append({
+            "display_number": i,
+            "question_id": q["question_id"],
+            "question_text": q["question_text"]
+        })
 
     # Fetch teacher-subject info
     sub_query = """
@@ -412,9 +434,10 @@ async def rate_subject(request: Request, teacher_subject_id: int):
     """
     subject = await database.fetch_one(sub_query, {"teacher_subject_id": teacher_subject_id})
 
+    # ✅ Pass `numbered_questions` instead of `questions`
     return templates.TemplateResponse("rate.html", {
         "request": request,
-        "questions": questions,
+        "questions": numbered_questions,
         "subject": subject
     })
 
@@ -460,6 +483,46 @@ async def submit_feedback(request: Request, teacher_subject_id: int = Form(...))
         })
 
     return RedirectResponse(url="/module-rating", status_code=303)
+
+# -------------------------
+# Student Resources (Dynamic)
+# -------------------------
+@router.get("/resources", response_class=HTMLResponse)
+async def student_resources(request: Request):
+    student_id = request.session.get("student_id")
+    if not student_id:
+        return RedirectResponse(url="/student/login-form", status_code=302)
+
+    # Fetch student info
+    student_query = "SELECT * FROM students WHERE student_id = :student_id"
+    student = await database.fetch_one(student_query, {"student_id": student_id})
+
+    # Fetch announcements
+    announcements_query = """
+        SELECT id, title, message, category, posted_by, created_at
+        FROM latest_announcements
+        ORDER BY created_at DESC
+        LIMIT 10
+    """
+    announcements = await database.fetch_all(announcements_query)
+
+    # Fetch study materials
+    materials_query = """
+        SELECT id, title, description, file_url, created_at
+        FROM study_materials
+        ORDER BY created_at DESC
+        LIMIT 10
+    """
+    materials = await database.fetch_all(materials_query)
+
+    return templates.TemplateResponse("studentResources.html", {
+        "request": request,
+        "student": student,
+        "announcements": announcements,
+        "materials": materials
+    })
+
+
 
 # -------------------------
 # Student Logout

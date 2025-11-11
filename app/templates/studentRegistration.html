@@ -4,71 +4,243 @@
     <meta charset="UTF-8">
     <title>Student Registration</title>
     <link rel="stylesheet" href="/static/css/studentRegistration.css">
+
+    <style>
+        /* Error message styling with fade-in / fade-out */
+        .error-message {
+            color: #dc2626; /* red */
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        /* Visible state triggers fade-in */
+        .error-visible {
+            animation: errorFadeIn 0.35s ease forwards;
+        }
+
+        /* Fade-out animation */
+        .error-hide {
+            animation: errorFadeOut 0.28s ease forwards;
+        }
+
+        @keyframes errorFadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes errorFadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-6px); }
+        }
+
+        /* Highlight invalid input */
+        .error-input {
+            border: 2px solid #dc2626 !important;
+            background-color: #fff5f5;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        /* optional subtle shake on initial error */
+        .shake {
+            animation: shake 0.32s ease;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="brand">SIES-TES</h1>
         <h2 class="title">Student Registration</h2>
 
-        <form method="POST" action="/studentRegister">
+        <form method="POST" action="/studentRegister" id="reg-form">
             <table class="form-table">
                 <tr>
                     <td><label for="name">Full Name</label></td>
-                    <td><input type="text" name="name" id="name" required></td>
+                    <td>
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            required
+                            value="{{ form_data.name if form_data and form_data.name else '' }}">
+                    </td>
                 </tr>
+
                 <tr>
                     <td><label for="roll_number">Roll Number</label></td>
-                    <td><input type="text" name="roll_number" id="roll_number" required></td>
+                    <td>
+                        <!-- Roll error (if any) -->
+                        {% if error_field == "roll_number" %}
+                            <div id="roll-error" class="error-message error-visible">{{ error }}</div>
+                        {% else %}
+                            <div id="roll-error" class="error-message" style="display:none;"></div>
+                        {% endif %}
+
+                        <input
+                            type="text"
+                            name="roll_number"
+                            id="roll_number"
+                            required
+                            value="{{ form_data.roll_number if form_data and form_data.roll_number else '' }}"
+                            class="{% if error_field == 'roll_number' %}error-input shake{% endif %}">
+                    </td>
                 </tr>
+
                 <tr>
                     <td><label for="password">Password</label></td>
-                    <td><input type="password" name="password" id="password" required></td>
+                    <td>
+                        <input type="password" name="password" id="password" required>
+                    </td>
                 </tr>
+
                 <tr>
                     <td><label for="email">Email</label></td>
-                    <td><input type="email" name="email" id="email" required></td>
+                    <td>
+                        <!-- Email error (if any) -->
+                        {% if error_field == "email" %}
+                            <div id="email-error" class="error-message error-visible">{{ error }}</div>
+                        {% else %}
+                            <div id="email-error" class="error-message" style="display:none;"></div>
+                        {% endif %}
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            required
+                            value="{{ form_data.email if form_data and form_data.email else '' }}"
+                            class="{% if error_field == 'email' %}error-input shake{% endif %}">
+                    </td>
                 </tr>
+
                 <tr>
                     <td><label for="stream">Stream</label></td>
                     <td>
                         <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
                             <option value="">-- Select Stream --</option>
-                            <option value="1">Arts</option>
-                            <option value="2">Science</option>
-                            <option value="3">Commerce</option>
+                            <option value="1" {% if form_data and form_data.stream_id == '1' %}selected{% endif %}>Arts</option>
+                            <option value="2" {% if form_data and form_data.stream_id == '2' %}selected{% endif %}>Science</option>
+                            <option value="3" {% if form_data and form_data.stream_id == '3' %}selected{% endif %}>Commerce</option>
                         </select>
                     </td>
                 </tr>
+
                 <tr>
                     <td><label for="course">Course</label></td>
                     <td>
                         <select id="course" name="course_id" required>
                             <option value="">-- Select Course --</option>
+                            <!-- Optionally pre-select -->
+                            {% if form_data and form_data.course_id %}
+                                <option value="{{ form_data.course_id }}" selected>{{ form_data.course_id }}</option>
+                            {% endif %}
                         </select>
                     </td>
                 </tr>
+
                 <tr>
                     <td><label for="class">Class</label></td>
                     <td>
                         <select id="class" name="class_id" required>
                             <option value="">-- Select Class --</option>
+                            {% if form_data and form_data.class_id %}
+                                <option value="{{ form_data.class_id }}" selected>{{ form_data.class_id }}</option>
+                            {% endif %}
                         </select>
                     </td>
                 </tr>
+
                 <tr>
                     <td><label for="admission_year">Admission Year</label></td>
-                    <td><input type="number" name="admission_year" id="admission_year" min="2023" max="2030" required></td>
+                    <td>
+                        <input
+                            type="number"
+                            name="admission_year"
+                            id="admission_year"
+                            min="2023"
+                            max="2030"
+                            required
+                            value="{{ form_data.admission_year if form_data and form_data.admission_year else '' }}">
+                    </td>
                 </tr>
             </table>
 
             <button type="submit" class="btn">Register</button>
         </form>
 
-        <script src="{{ url_for('static', path='js/studentRegistration.js') }}"></script>
-
         <div class="back-link">
             <a href="/student/login-form">Already registered? Login</a>
         </div>
     </div>
+
+    <script src="{{ url_for('static', path='js/studentRegistration.js') }}"></script>
+
+    <script>
+        // Elements
+        const emailInput = document.getElementById("email");
+        const rollInput = document.getElementById("roll_number");
+        const emailError = document.getElementById("email-error");
+        const rollError = document.getElementById("roll-error");
+
+        // Helper to fade-out and hide the error element and clear input styling
+        function hideError(errorElem, inputElem) {
+            if (!errorElem) return;
+
+            // if it's already hidden, nothing to do
+            if (errorElem.style.display === "none") {
+                if (inputElem) inputElem.classList.remove("error-input", "shake");
+                return;
+            }
+
+            // start fade-out animation
+            errorElem.classList.remove("error-visible");
+            errorElem.classList.add("error-hide");
+
+            // remove input error classes
+            if (inputElem) {
+                inputElem.classList.remove("error-input", "shake");
+            }
+
+            // after animation ends, hide the element and clean up
+            const onAnimEnd = () => {
+                errorElem.style.display = "none";
+                errorElem.classList.remove("error-hide");
+                errorElem.removeEventListener("animationend", onAnimEnd);
+            };
+            errorElem.addEventListener("animationend", onAnimEnd);
+        }
+
+        // Attach listeners to hide error when user types
+        if (emailInput) {
+            emailInput.addEventListener("input", () => hideError(emailError, emailInput));
+        }
+        if (rollInput) {
+            rollInput.addEventListener("input", () => hideError(rollError, rollInput));
+        }
+
+        // Ensure empty error containers are hidden on load
+        window.addEventListener("DOMContentLoaded", () => {
+            if (emailError && !emailError.textContent.trim()) {
+                emailError.style.display = "none";
+            } else if (emailError) {
+                emailError.style.display = "block";
+            }
+            if (rollError && !rollError.textContent.trim()) {
+                rollError.style.display = "none";
+            } else if (rollError) {
+                rollError.style.display = "block";
+            }
+        });
+    </script>
 </body>
 </html>

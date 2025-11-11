@@ -32,3 +32,25 @@
                 });
             });
         });
+
+        // Function to remove error state when user types again
+        function clearError(fieldId, errorId) {
+            const input = document.getElementById(fieldId);
+            const errorMsg = document.getElementById(errorId);
+            if (input && errorMsg) {
+                input.classList.remove("error-input", "shake");
+                errorMsg.style.display = "none";
+            }
+        }
+
+        // Watch both email and roll number fields
+        const emailInput = document.getElementById("email");
+        const rollInput = document.getElementById("roll_number");
+
+        if (emailInput) {
+            emailInput.addEventListener("input", () => clearError("email", "email-error"));
+        }
+
+        if (rollInput) {
+            rollInput.addEventListener("input", () => clearError("roll_number", "roll-error"));
+        }

@@ -4,7 +4,45 @@
     <meta charset="UTF-8">
     <title>Admin Registration</title>
     <link rel="stylesheet" href="/static/css/adminRegistration.css">
+    <style>
+        /* Error Styles */
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-input {
+            border: 2px solid #dc2626 !important;
+            background-color: #fff5f5;
+            transition: 0.3s ease;
+        }
+
+        .error-input:focus {
+            border-color: #a91c1c;
+            background-color: white;
+        }
+
+        .shake {
+            animation: shake 0.25s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="brand">SIES-TES</h1>
@@ -26,12 +64,32 @@
                 <input type="email" name="admin_email" id="admin_email" placeholder="Enter email address" required>
             </div>
 
-            <button type="submit" class="btn">Register</button>
-        </form>
+            <div class="form-group">
+                <label for="course_id">Department / Course</label>
+                <select name="course_id" id="course_id" required>
+                    <option value="">-- Select Department --</option>
+                    {% for c in courses %}
+                        <option value="{{ c.course_id }}">{{ c.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div class="back-link">
-            <a href="/admin/login-form">Already Registered? Login Here</a>
-        </div>
-    </div>
+    <button type="submit" class="btn">Register</button>
+</form>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const emailField = document.getElementById("admin_email");
+            const errorMsg = document.getElementById("email-error");
+
+            if (emailField && errorMsg) {
+                emailField.addEventListener("input", () => {
+                    errorMsg.classList.remove("show");
+                    emailField.classList.remove("error-input", "shake");
+                });
+            }
+        });
+    </script>
 </body>
 </html>

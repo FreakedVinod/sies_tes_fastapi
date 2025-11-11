@@ -2,19 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - SIES-TES</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', path='css/adminDashboard.css') }}">
 </head>
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-         {% include 'adminSidebar.html' %}
+<body class="bg-gray-100 min-h-screen flex">
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <h2 class="welcome">Welcome {{admin.name}}</h2>
-            <p>It will contain recent activites of the project.</p>
-        </main>
-    </div>
+    <!-- Toggle Button -->
+    <button class="menu-toggle fixed top-4 left-4 z-50 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-md lg:hidden transition">
+        ☰
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar fixed lg:static z-40">
+        <div class="logo-container mb-4">
+            <img src="{{ url_for('static', path='sies_logo.png') }}" alt="SIES Logo" class="logo mx-auto mb-2" style="max-width: 80px;">
+            <p class="college-name text-center text-xs leading-tight">SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE</p>
+        </div>
+
+        <h2 class="welcome text-center mb-4 text-sm font-semibold">Welcome {{ admin.admin_name }}</h2>
+
+        <nav class="sidebar-nav flex flex-col space-y-2 text-sm">
+            <a href="/admin/dashboard"><button class="nav-link-btn active">Dashboard</button></a>
+            <a href="/admin/manage-students"><button class="nav-link-btn">Manage Students</button></a>
+            <a href="/admin/manage-teachers"><button class="nav-link-btn">Manage Teachers</button></a>
+            <a href="/admin/manage-announcements"><button class="nav-link-btn">Manage Announcements</button></a>
+            <a href="/admin/manage-questions"><button class="nav-link-btn">Manage Questions</button></a>
+            <a href="/admin/manage-feedback"><button class="nav-link-btn">Feedback Reports</button></a>
+            <a href="/admin/logout"><button class="nav-link-btn logout-btn mt-6">Logout</button></a>
+        </nav>
+    </aside>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-40 z-30 hidden lg:hidden"></div>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 sm:p-10">
+        <div class="fade-in mb-6">
+            <h1 class="text-2xl font-bold text-indigo-700">Department Insights</h1>
+            <p class="text-gray-500 text-sm">View class performance and teacher feedback summary</p>
+
+            <form method="get" action="/admin/dashboard" class="mt-3">
+                <select name="class_id" onchange="this.form.submit()" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    {% for c in classes %}
+                        <option value="{{ c.class_id }}" {% if c.class_id == selected_class_id %}selected{% endif %}>
+                            {{ c.class_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 fade-in">
+            <div class="bg-white p-4 rounded-xl shadow summary-card text-center">
+                <h2 class="font-medium text-gray-600 text-sm">Total Teachers</h2>
+                <p class="text-xl font-bold text-indigo-700 mt-1">{{ summary.total_teachers }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow summary-card text-center">
+                <h2 class="font-medium text-gray-600 text-sm">Total Students</h2>
+                <p class="text-xl font-bold text-indigo-700 mt-1">{{ summary.total_students }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow summary-card text-center">
+                <h2 class="font-medium text-gray-600 text-sm">Feedbacks Submitted</h2>
+                <p class="text-xl font-bold text-indigo-700 mt-1">{{ summary.total_feedbacks }}</p>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="bg-white mt-6 p-5 rounded-xl shadow fade-in">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-lg font-semibold text-gray-800">Teacher Rating Overview</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="teacherRatingsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Teachers -->
+        <div class="bg-white mt-6 p-5 rounded-xl shadow fade-in">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Top Performing Teachers</h2>
+            {% if top_teachers %}
+                <ul class="divide-y divide-gray-200">
+                    {% for t in top_teachers %}
+                        <li class="py-2 flex justify-between">
+                            <span class="font-medium text-gray-700">{{ t.teacher_name }}</span>
+                            <span class="text-indigo-600 font-semibold">{{ t.avg_rating | round(2) }}/5</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-gray-500 text-sm">No feedback data available yet.</p>
+            {% endif %}
+        </div>
+    </main>
+    <script>
+    // Inject Jinja data for JS to read
+    window.teacherData = {
+        names: {{ teacher_ratings | map(attribute='teacher_name') | list | tojson }},
+        ratings: {{ teacher_ratings | map(attribute='avg_rating') | list | tojson }}
+    };
+</script>
+<script src="{{ url_for('static', path='js/adminDashboard.js') }}"></script>
+
 </body>
 </html>
