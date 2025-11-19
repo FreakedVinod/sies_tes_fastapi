@@ -280,7 +280,8 @@ async def admin_edit_student(request: Request, student_id: int):
     if not student:
         return RedirectResponse(url="/admin/manage-students", status_code=302)
 
-    # Fetch course and class lists for dropdowns
+    # Fetch dropdown data
+    streams = await database.fetch_all("SELECT * FROM streams")
     courses = await database.fetch_all("SELECT * FROM courses")
     classes = await database.fetch_all("SELECT * FROM classes")
 
@@ -290,6 +291,7 @@ async def admin_edit_student(request: Request, student_id: int):
             "request": request,
             "admin": admin,
             "student": student,
+            "streams": streams,
             "courses": courses,
             "classes": classes
         }

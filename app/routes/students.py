@@ -14,6 +14,7 @@ from app.models import students
 from app.models import classes
 from dotenv import load_dotenv
 from passlib.hash import bcrypt
+from starlette.status import HTTP_302_FOUND
 
 
 load_dotenv()
@@ -23,40 +24,101 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 # -------------------------
-# Student Registration
+# Student Registration Page
 # -------------------------
-
-@router.get("/student/register-form")
-def student_register_form(request: Request):
+@router.get("/student/register-form", response_class=HTMLResponse)
+async def student_register_form(request: Request):
     return templates.TemplateResponse("studentRegistration.html", {"request": request})
 
+
+# -------------------------
+# Student Registration POST
+# -------------------------
 @router.post("/studentRegister")
 async def register_student(
+    request: Request,
     name: str = Form(...),
     roll_number: str = Form(...),
     password: str = Form(...),
     email: str = Form(...),
-    admission_year: int = Form(...),
+    stream_id: int = Form(...),
+    course_id: int = Form(...),
     class_id: int = Form(...),
-    course_id: int = Form(...)
+    admission_year: int = Form(...)
 ):
     hashed_password = bcrypt.hash(password)
 
-    query = """
-        INSERT INTO students (name, roll_no, password, email, admission_year, class_id, course_id)
-        VALUES (:name, :roll_no, :password, :email, :admission_year, :class_id, :course_id)
-    """
-    await database.execute(query=query, values={
+    form_data = {
         "name": name,
-        "roll_no": roll_number,
-        "password": hashed_password,
+        "roll_number": roll_number,
         "email": email,
-        "admission_year": admission_year,
-        "class_id": class_id,
-        "course_id": course_id
-    })
+        "stream_id": str(stream_id),
+        "course_id": str(course_id),
+        "class_id": str(class_id),
+        "admission_year": admission_year
+    }
 
-    return RedirectResponse(url="/student/login-form", status_code=302)
+    # -------------------------
+    # CHECK: Duplicate Roll Number
+    # -------------------------
+    existing_roll = await database.fetch_one(
+        "SELECT student_id FROM students WHERE roll_no = :roll_no",
+        {"roll_no": roll_number}
+    )
+    if existing_roll:
+        return templates.TemplateResponse(
+            "studentRegistration.html",
+            {
+                "request": request,
+                "error": "Roll Number already registered!",
+                "error_field": "roll_number",
+                "form_data": form_data
+            }
+        )
+
+    # -------------------------
+    # CHECK: Duplicate Email
+    # -------------------------
+    existing_email = await database.fetch_one(
+        "SELECT student_id FROM students WHERE email = :email",
+        {"email": email}
+    )
+    if existing_email:
+        return templates.TemplateResponse(
+            "studentRegistration.html",
+            {
+                "request": request,
+                "error": "Email already registered!",
+                "error_field": "email",
+                "form_data": form_data
+            }
+        )
+
+    # -------------------------
+    # INSERT Student
+    # -------------------------
+    query = """
+        INSERT INTO students 
+        (name, roll_no, password, email, stream_id, course_id, class_id, admission_year)
+        VALUES 
+        (:name, :roll_no, :password, :email, :stream_id, :course_id, :class_id, :admission_year)
+    """
+
+    await database.execute(
+        query=query,
+        values={
+            "name": name,
+            "roll_no": roll_number,
+            "password": hashed_password,
+            "email": email,
+            "stream_id": stream_id,
+            "course_id": course_id,
+            "class_id": class_id,
+            "admission_year": admission_year
+        }
+    )
+
+    return RedirectResponse(url="/student/login-form", status_code=HTTP_302_FOUND)
 
 
 # -------------------------

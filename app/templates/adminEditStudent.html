@@ -12,7 +12,9 @@
     <aside class="sidebar fixed lg:static z-40">
         <div class="logo-container mb-4">
             <img src="{{ url_for('static', path='sies_logo.png') }}" alt="SIES Logo" class="logo mx-auto mb-2" style="max-width: 80px;">
-            <p class="college-name text-center text-xs leading-tight">SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE</p>
+            <p class="college-name text-center text-xs leading-tight">
+                SIES COLLEGE OF ARTS,<br>SCIENCE & COMMERCE
+            </p>
         </div>
 
         <h2 class="welcome text-center mb-4 text-sm font-semibold">Welcome {{ admin.admin_name }}</h2>
@@ -36,6 +38,7 @@
             <form method="POST" action="/admin/update-student">
                 <input type="hidden" name="student_id" value="{{ student.student_id }}">
 
+                <!-- Name -->
                 <div class="form-row">
                     <div class="full">
                         <label>Full Name</label>
@@ -43,6 +46,7 @@
                     </div>
                 </div>
 
+                <!-- Roll Number & Email -->
                 <div class="form-row">
                     <div>
                         <label>Roll Number</label>
@@ -54,32 +58,51 @@
                     </div>
                 </div>
 
+                <!-- Stream & Course -->
                 <div class="form-row">
                     <div>
-                        <label>Course</label>
-                        <select id="course" name="course_id" required>
-                            <option value="">-- Select Course --</option>
-                                {% for c in courses %}
-                                    <option value="{{ c.course_id }}" {% if c.course_id == student.course_id %}selected{% endif %}>{{ c.course_name }}</option>
-                                {% endfor %}
+                        <label>Stream</label>
+                        <select id="stream" name="stream_id" onchange="loadCourses(this.value)" required>
+                            <option value="">-- Select Stream --</option>
+                            <option value="1" {% if student.stream_id == 1 %}selected{% endif %}>Arts</option>
+                            <option value="2" {% if student.stream_id == 2 %}selected{% endif %}>Science</option>
+                            <option value="3" {% if student.stream_id == 3 %}selected{% endif %}>Commerce</option>
                         </select>
                     </div>
                     <div>
-                        <label>Class</label>
-                        <select id="class" name="class_id" required>
-                            <option value="">-- Select Class --</option>
-                            {% for cl in classes %}
-                                <option value="{{ cl.class_id }}" {% if cl.class_id == student.class_id %}selected{% endif %}>{{ cl.class_name }}</option>
+                        <label>Course</label>
+                        <select id="course" name="course_id" onchange="loadClasses(this.value)" required>
+                            <option value="">-- Select Course --</option>
+                            {% for c in courses %}
+                                <option value="{{ c.course_id }}" {% if c.course_id == student.course_id %}selected{% endif %}>
+                                    {{ c.course_name }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
 
+                <!-- Class & Admission Year -->
                 <div class="form-row">
+                    <div>
+                        <label>Class</label>
+                        <select id="class" name="class_id" required>
+                            <option value="">-- Select Class --</option>
+                            {% for cl in classes %}
+                                <option value="{{ cl.class_id }}" {% if cl.class_id == student.class_id %}selected{% endif %}>
+                                    {{ cl.class_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div>
                         <label>Admission Year</label>
                         <input type="number" name="admission_year" value="{{ student.admission_year }}" min="2020" max="2030" required>
                     </div>
+                </div>
+
+                <!-- Eligibility -->
+                <div class="form-row">
                     <div>
                         <label>Eligibility</label>
                         <select name="is_eligible" required>
@@ -89,6 +112,7 @@
                     </div>
                 </div>
 
+                <!-- Submit -->
                 <button type="submit" class="btn-primary">Update Student</button>
 
                 <div class="back-link">
@@ -98,7 +122,7 @@
         </div>
     </main>
 
-
+    <!-- Dynamic JS (same logic as Add Student) -->
     <script>
     async function loadCourses(streamId) {
         const courseSelect = document.getElementById('course');
@@ -109,7 +133,6 @@
 
         const res = await fetch(`/get-courses/${streamId}`);
         const data = await res.json();
-
         courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
         data.courses.forEach(c => {
             const opt = document.createElement('option');
@@ -126,7 +149,6 @@
 
         const res = await fetch(`/get-classes/${courseId}`);
         const data = await res.json();
-
         classSelect.innerHTML = '<option value="">-- Select Class --</option>';
         data.classes.forEach(cls => {
             const opt = document.createElement('option');
@@ -135,6 +157,22 @@
             classSelect.appendChild(opt);
         });
     }
+
+    // Auto-load course & class for existing student
+    window.addEventListener('DOMContentLoaded', () => {
+        const streamId = document.getElementById('stream').value;
+        const courseId = "{{ student.course_id }}";
+        const classId = "{{ student.class_id }}";
+
+        if (streamId) {
+            loadCourses(streamId).then(() => {
+                document.getElementById('course').value = courseId;
+                loadClasses(courseId).then(() => {
+                    document.getElementById('class').value = classId;
+                });
+            });
+        }
+    });
     </script>
 </body>
 </html>
